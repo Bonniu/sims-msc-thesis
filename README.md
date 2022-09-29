@@ -1,0 +1,2 @@
+# potential-si
+Praca magisterska
