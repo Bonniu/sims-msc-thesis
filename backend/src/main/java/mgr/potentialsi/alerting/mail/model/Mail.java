@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.time.DateTimeException;
+import java.util.Date;
 
 
 @Entity(name = "t_mails")
@@ -21,12 +23,14 @@ public class Mail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private String topic;
     private String body;
     private String sentTo;
     private String status;
+    private Date timestamp;
 
     public Mail(String body, String sentTo) {
-        this(null, body, sentTo, null);
+        this(null, "administrator", body, sentTo, null, new Date());
     }
 
 }
