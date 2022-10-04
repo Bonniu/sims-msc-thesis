@@ -1,14 +1,11 @@
 package main;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 @Slf4j
 public class Main {
-
 
     public static void main(String[] args) throws InterruptedException {
         log.info("hello wk");
@@ -19,7 +16,7 @@ public class Main {
             log.info("hello wk" + io);
             Exception ex = new Exception();
             try {
-               new File("akjsnbdjasd.gowno");
+                new File("akjsnbdjasd.gowno");
             } catch (Exception e) {
                 log.info("erorr", e);
                 System.out.println();
