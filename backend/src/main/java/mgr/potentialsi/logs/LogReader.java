@@ -1,9 +1,6 @@
-package mgr.potentialsi.logreader;
+package mgr.potentialsi.logs;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,12 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-@Component
-@EnableScheduling
-public class LogReaderScheduler {
+public class LogReader {
 
-    @Scheduled(fixedDelay = 1000)//cron = "1 * * * * *")
-    public List<Log> readLogs() throws IOException {
+    public static List<Log> readLogs() throws IOException {
         var logDirectoryPath = "logs"; // todo properties
         var delimiter = "$";
         List<File> logFiles = getFileList(logDirectoryPath);

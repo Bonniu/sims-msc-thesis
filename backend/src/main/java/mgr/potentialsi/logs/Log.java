@@ -1,4 +1,4 @@
-package mgr.potentialsi.logreader;
+package mgr.potentialsi.logs;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
