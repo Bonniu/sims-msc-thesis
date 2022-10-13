@@ -3,8 +3,8 @@ package mgr.potentialsi.logs.analyser;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mgr.potentialsi.logs.LogList;
-import mgr.potentialsi.logs.LogReader;
+import mgr.potentialsi.logs.parser.LogParser;
+import mgr.potentialsi.logs.reader.LogReader;
 import mgr.potentialsi.logs.processor.LogProcessor;
 import mgr.potentialsi.logs.processor.LogProcessorStatus;
 import mgr.potentialsi.logs.util.LogLogger;
@@ -36,13 +36,13 @@ public class LogAnalyser {
         public void run() {
             LogLogger.logStart();
             try {
-                var logs = LogReader.readLogs();
-                if (logs.isEmpty()) {
+                var logsAsStrings = LogReader.readLogs();
+                if (logsAsStrings.isEmpty()) {
                     LogLogger.logFinish();
                     return;
                 }
-                var logList = new LogList(logs, logParsingPeriod);
-                var processorResult = LogProcessor.parse(logList);
+                var logList = LogParser.parse(logsAsStrings, logParsingPeriod);
+                var processorResult = LogProcessor.process(logList);
 
                 LogProcessorStatus status = processorResult.getStatus();
                 switch (status) {
