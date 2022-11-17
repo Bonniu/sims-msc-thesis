@@ -25,7 +25,7 @@ public class LogAnalyser {
 
     @Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
     public void parseLogs() {
-        new ReaderThread(logParsingPeriod).start();
+//        new ReaderThread(logParsingPeriod).start();
     }
 
     @AllArgsConstructor
