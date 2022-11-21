@@ -2,18 +2,39 @@ package mgr.potentialsi.alerting.notification;
 
 import lombok.RequiredArgsConstructor;
 import mgr.potentialsi.alerting.notification.model.Notification;
+import mgr.potentialsi.alerting.notification.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import javax.persistence.EntityNotFoundException;
+import java.text.MessageFormat;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
+    private final NotificationRepository notificationRepository;
+
     public List<Notification> getNotifications() {
-        ArrayList<Notification> notifications = new ArrayList<>();
-        notifications.add(new Notification("XD"));
-        return notifications;
+        return notificationRepository.findAll();
     }
+
+    public Notification getNotification(Integer id) {
+        return notificationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(MessageFormat.format("Notification with id {0} not found", id)));
+    }
+
+    public void addNotification(Notification id) {
+        notificationRepository.save(id);
+    }
+
+    public void deleteNotification(Integer id) {
+        notificationRepository.deleteById(id);
+    }
+
+    public void modifyNotification(Integer id, Notification notification) {
+        notification.setId(id);
+        notificationRepository.save(notification);
+    }
+
 }
