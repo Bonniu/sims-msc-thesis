@@ -19,5 +19,6 @@ public class NotificationDTO {
     private String errorType;
     private int channelId;
     private List<NotificationRecipientDTO> recipients;
+    private boolean seen;
 
 }

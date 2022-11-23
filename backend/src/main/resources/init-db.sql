@@ -31,6 +31,9 @@ create table t_notification_mail_recipients
     email varchar(128)
 );
 
+insert into t_notification_mail_recipients(email) values ('test1@test.pl');
+insert into t_notification_mail_recipients(email) values ('test2@test.pl');
+
 drop table if exists t_notifications cascade;
 create table t_notifications
 (
@@ -39,6 +42,7 @@ create table t_notifications
     message    varchar(5000),
     error_type varchar(15),
     channel_id SERIAL,
+    seen boolean,
 
     CONSTRAINT fk_channel FOREIGN KEY (channel_id) REFERENCES t_notification_channels (id)
 );

@@ -12,6 +12,7 @@ public class NotificationEntityDtoMapper {
                 .errorType(dto.getErrorType())
                 .timestamp(dto.getTimestamp())
                 .recipients(dto.getRecipients().stream().map(NotificationRecipientEntityDtoMapper::toEntity).toList())
+                .seen(dto.isSeen())
                 .build();
     }
 
@@ -23,6 +24,7 @@ public class NotificationEntityDtoMapper {
                 .errorType(notification.getErrorType())
                 .timestamp(notification.getTimestamp())
                 .recipients(notification.getRecipients().stream().map(NotificationRecipientEntityDtoMapper::toDto).toList())
+                .seen(notification.isSeen())
                 .build();
     }
 }

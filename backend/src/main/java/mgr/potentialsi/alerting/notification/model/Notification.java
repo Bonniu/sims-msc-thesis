@@ -31,5 +31,6 @@ public class Notification {
             inverseJoinColumns = {@JoinColumn(name = "recipient_id")}
     )
     private List<NotificationRecipient> recipients;
+    private boolean seen;
 
 }
