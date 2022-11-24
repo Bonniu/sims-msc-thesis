@@ -2,6 +2,7 @@ export interface Notification {
   id: number;
   message: string;
   timestamp: number;
-  errorType: string;
+  messageType: string;
   seen: boolean;
+  selected: boolean;
 }

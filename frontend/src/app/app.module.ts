@@ -13,9 +13,11 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { MatSortModule } from '@angular/material/sort';
+import { MessageModalComponent } from './notifications/message-modal/message-modal.component';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, NotificationsComponent],
+  declarations: [AppComponent, DashboardComponent, NotificationsComponent, MessageModalComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
@@ -26,8 +28,15 @@ import { MatSortModule } from '@angular/material/sort';
     MatButtonModule,
     FormsModule,
     MatSortModule,
+    MatDialogModule
   ],
-  providers: [NotificationService],
+  providers: [
+    {
+      provide: MatDialogRef,
+      useValue: {}
+    },
+    NotificationService
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

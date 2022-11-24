@@ -19,4 +19,11 @@ export class NotificationService {
       notification
     );
   }
+
+  deleteNotification(notificationId: number): Observable<void> {
+    return this.http.delete<void>(
+      this.configUrl + '/' + notificationId,
+    );
+  }
+
 }

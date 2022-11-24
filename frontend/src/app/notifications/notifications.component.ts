@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { NotificationService } from './service/notification.service';
 import { Notification } from './model/notification';
 import { MatTable } from '@angular/material/table';
+import { MessageModalComponent } from './message-modal/message-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-notifications',
@@ -13,16 +15,18 @@ export class NotificationsComponent implements OnInit {
   notifications: Notification[] = [];
   displayedColumns: string[] = [
     'id',
-    'message',
-    'errorType',
     'timestamp',
+    'messageType',
+    'message',
     'seen',
+    'selected'
   ];
   @ViewChild(MatTable) notificationsTable!: MatTable<any>;
 
   constructor(
     private http: HttpClient,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -32,7 +36,17 @@ export class NotificationsComponent implements OnInit {
   }
 
   getClassForNotification(notification: Notification) {
-    return !notification.seen ? 'fw-bold' : '';
+    let notificationClass = '';
+    if (!notification.seen) {
+      notificationClass += 'fw-bold ';
+    }
+    if (notification.messageType == 'ERROR')
+      notificationClass += 'text-warning ';
+    if (notification.messageType == 'WARNING')
+      notificationClass += 'text-dark ';
+    if (notification.messageType == 'FATAL')
+      notificationClass += 'text-danger ';
+    return notificationClass;
   }
 
   updateNotification(notification: Notification) {
@@ -45,5 +59,41 @@ export class NotificationsComponent implements OnInit {
       n.seen = true;
       this.updateNotification(n);
     });
+  }
+
+  showMessage(notification: Notification) {
+    const dialogRef = this.dialog.open(MessageModalComponent, {
+      data: notification,
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // do something
+      }
+    });
+  }
+
+  deleteSelected(notifications: Notification[]) {
+    let ids = notifications.filter(n => n.selected).map(n => n.id);
+    for (const id of ids) {
+      console.log(id)
+      this.notificationService
+        .deleteNotification(id)
+        .subscribe((next) => {
+          console.log("done")
+        });
+    }
+    window.location.reload();
+  }
+
+  deleteAll() {
+    for (const id of this.notifications.map(n => n.id)) {
+      console.log(id)
+      this.notificationService
+        .deleteNotification(id)
+        .subscribe((next) => {
+          console.log("done")
+        });
+    }
+    window.location.reload();
   }
 }

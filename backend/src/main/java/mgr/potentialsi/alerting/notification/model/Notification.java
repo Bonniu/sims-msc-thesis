@@ -21,7 +21,8 @@ public class Notification {
     private int id;
     private String message;
     private Date timestamp;
-    private String errorType;
+    @Enumerated(EnumType.STRING)
+    private MessageType messageType;
     @OneToOne
     private NotificationChannel channel;
     @ManyToMany(cascade = {CascadeType.DETACH})

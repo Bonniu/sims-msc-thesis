@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import mgr.potentialsi.alerting.notification.model.MessageType;
 
 import java.util.Date;
 import java.util.List;
@@ -16,7 +17,7 @@ public class NotificationDTO {
     private int id;
     private String message;
     private Date timestamp;
-    private String errorType;
+    private MessageType messageType;
     private int channelId;
     private List<NotificationRecipientDTO> recipients;
     private boolean seen;

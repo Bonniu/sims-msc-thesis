@@ -40,7 +40,7 @@ create table t_notifications
     id         SERIAL primary key,
     timestamp  timestamp,
     message    varchar(5000),
-    error_type varchar(15),
+    message_type varchar(15),
     channel_id SERIAL,
     seen boolean,
 
