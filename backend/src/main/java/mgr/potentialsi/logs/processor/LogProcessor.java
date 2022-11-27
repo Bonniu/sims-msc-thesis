@@ -3,8 +3,6 @@ package mgr.potentialsi.logs.processor;
 import mgr.potentialsi.logs.LogLevel;
 import mgr.potentialsi.logs.LogList;
 
-import java.util.stream.Collectors;
-
 public class LogProcessor {
 
     public static LogProcessorResult process(LogList logList) {

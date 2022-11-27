@@ -22,61 +22,94 @@ public class LogsmockApplication {
     public static void main(String[] args) {
         SpringApplication.run(LogsmockApplication.class, args);
         var list = new ArrayList<MyLog>();
+        // october
+        var weekends = List.of(8, 9, 15, 16, 22, 23, 29, 30);
+        for (int i = 3; i < 31; i++) {
+            if (weekends.contains(i)) continue; // weekends
+            var today = LocalDate.of(2022, 10, i);
+            list.addAll(generateNormalUser("jkiwior", 8, 0, 8, today));
+            list.addAll(generateNormalUser("rlewandowski", 7, 30, 8, today));
+            list.addAll(generateNormalUser("wszczesny", 9, 0, 6, today));
+            list.addAll(generateNormalUser("gkrychowiak", 12, 0, 8, today));
+            list.addAll(generateNormalUser("pzielinski", 8, 0, 12, today));
+            list.addAll(generateNormalUser("kpiatek", 9, 15, 6, today));
+        }
 
-        list.addAll(generateNormalUser("jkiwior", 8, 0, 8));
-        list.addAll(generateNormalUser("rlewandowski", 7, 30, 8));
-        list.addAll(generateNormalUser("wszczesny", 9, 0, 6));
-        list.addAll(generateNormalUser("gkrychowiak", 12, 0, 8));
-        list.addAll(generateNormalUser("pzielinski", 8, 0, 12));
-        list.addAll(generateNormalUser("kpiatek", 9, 15, 6));
+        var date = LocalDate.of(2022, 11, 1);
+        list.addAll(generateUserLoggedOnStrangeHour("kpiatek", 9, 15, 6, date));
+
 
         list.sort(MyLog::compareTo);
         for (var t : list) {
-            System.out.println(t);
+            log.info(t.toString());
         }
 
     }
 
-    public static List<MyLog> generateNormalUser(String username, int startHour, int startMinutes, int workTime) {
+    public static List<MyLog> generateNormalUser(String username, int startHour, int startMinutes, int workTime, LocalDate date) {
         int requestPeriod = 15; // minutes
-
         var list = new ArrayList<MyLog>();
-        // days between 14-27 november
-        for (int i = 14; i < 28; i++) {
-            if (i == 19 || i == 20) continue; // weekend
-            var today = LocalDate.of(2022, 11, i);
 
-            // start work
-            var startTime = addRandomnessToTime(startHour, startMinutes, 3);
-            list.add(new MyLog(today, startTime, username, MessageFormat.format(LOGGED_TO_WORK, username)));
+        // start work
+        var startTime = addRandomnessToTime(startHour, startMinutes, 3);
+        list.add(new MyLog(date, startTime, username, MessageFormat.format(LOGGED_TO_WORK, username)));
 
-            //end work
-            var endTime = addRandomnessToTime(startHour + workTime, startMinutes + 5, 2);
-            String s = countTime(startTime, endTime);
-            list.add(new MyLog(today, endTime, username, MessageFormat.format(LOGGED_OUT, username, s)));
+        //end work
+        var endTime = addRandomnessToTime(startHour + workTime, startMinutes + 5, 2);
+        String s = countTime(startTime, endTime);
+        list.add(new MyLog(date, endTime, username, MessageFormat.format(LOGGED_OUT, username, s)));
 
-            //between
-            var time = startTime.plus(15, ChronoUnit.MINUTES);
-            list.add(new MyLog(today, time, username, MessageFormat.format(ALL_RESERVATIONS, username)));
+        //between
+        var time = startTime.plus(15, ChronoUnit.MINUTES);
+        list.add(new MyLog(date, time, username, MessageFormat.format(ALL_RESERVATIONS, username)));
 
-            while (time.isBefore(endTime)) {
-                time = time.plus(randomInt(30, requestPeriod * 60), ChronoUnit.SECONDS);
+        while (time.isBefore(endTime)) {
+            time = time.plus(randomInt(30, requestPeriod * 60), ChronoUnit.SECONDS);
+            if (time.isAfter(endTime)) break;
+            list.add(new MyLog(date, time, username, MessageFormat.format(ALL_RESERVATIONS, username)));
+            if (randomInt(1, 100) % 2 == 0) {
+                time = time.plus(randomInt(30, 100), ChronoUnit.SECONDS);
                 if (time.isAfter(endTime)) break;
-                list.add(new MyLog(today, time, username, MessageFormat.format(ALL_RESERVATIONS, username)));
-                if (randomInt(1, 100) % 2 == 0) {
-                    time = time.plus(randomInt(30, 100), ChronoUnit.SECONDS);
-                    if (time.isAfter(endTime)) break;
-                    list.add(new MyLog(today, time, username, MessageFormat.format(RESERVATION, username)));
-                }
+                list.add(new MyLog(date, time, username, MessageFormat.format(RESERVATION, username)));
             }
-
         }
+        return list;
+    }
 
+    public static List<MyLog> generateUserLoggedOnStrangeHour(String username, int startHour, int startMinutes, int workTime, LocalDate date) {
+        var list = new ArrayList<MyLog>();
+
+        // start work but in the night
+        var time = addRandomnessToTime(startHour, startMinutes, 3);
+        time = time.withHour(1);
+        list.add(new MyLog(date, time, username, MessageFormat.format(FAILED_LOG_TO_WORK, username, 1), false));
+        time = time.plus(1, ChronoUnit.MINUTES);
+        list.add(new MyLog(date, time, username, MessageFormat.format(FAILED_LOG_TO_WORK, username, 2), " WARN", false));
+        time = time.plus(randomInt(30, 78), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(FAILED_LOG_TO_WORK, username, 3), " WARN", false));
+        time = time.plus(randomInt(30, 78), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(FAILED_LOG_TO_WORK, username, 4), " WARN", false));
+        time = time.plus(randomInt(300, 780), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(FAILED_LOG_TO_WORK, username, 5), " WARN", false));
+        time = time.plus(randomInt(30, 78), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(LOGGED_TO_WORK, username), false));
+        time = time.plus(randomInt(3, 7), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(ALL_RESERVATIONS, username), false));
+        time = time.plus(randomInt(30, 60), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(ALL_RESERVATIONS, username), false));
+        time = time.plus(randomInt(31, 71), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(ALL_RESERVATIONS, username), false));
+        time = time.plus(randomInt(32, 71), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(ALL_RESERVATIONS, username), false));
+        time = time.plus(randomInt(31, 71), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(ALL_RESERVATIONS, username), false));
+        time = time.plus(randomInt(2, 7), ChronoUnit.SECONDS);
+        list.add(new MyLog(date, time, username, MessageFormat.format(LOGGED_OUT, username), false));
 
         return list;
     }
 
-    public static int randomInt(int min, int max) {
+    private static int randomInt(int min, int max) {
         return (int) (Math.random() * (max - min + 1) + min);
     }
 

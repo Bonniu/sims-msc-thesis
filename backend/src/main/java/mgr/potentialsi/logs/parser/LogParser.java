@@ -14,22 +14,33 @@ import java.util.List;
 @Slf4j
 public class LogParser {
 
-    private static final String delimiter = "\\|"; // "|"
-
+    /*
+     * Log parser used to convert List<String> logs into List<Log> objects
+     * logs with '###' are generated as mock users for breaking into system defense
+     * */
     public static LogList parse(List<String> strLogs, int logParsingPeriod) {
         var logs = new ArrayList<Log>();
         for (var s : strLogs) {
             try {
-                log.debug(MessageFormat.format("Splitting {0} by {1} ", s, delimiter));
-                String[] strings = s.split(delimiter); // sztywna struktura logów, może to będzie trzeba poprawić
-                String[] classPathAndMessage = strings[3].split("~");
-                var dateTime = LocalDateTime.parse(strings[0].trim().replace(" ", "T"));
+                log.debug(MessageFormat.format("Splitting {0} by {1} ", s));
+
+                if (s.contains("###")) { // mock logs
+                    s = s.split("###")[1];
+                }
+                var stringDateTime = s.substring(0, 25).trim();
+                var logLevel = s.substring(25, 30).trim();
+                var pid = s.substring(30, 36).trim();
+                var threadName = s.substring(41, 56).trim();
+                var loggerName = s.substring(57, 99).trim();
+                var message = s.substring(100).trim();
+
+                var dateTime = LocalDateTime.parse(stringDateTime.replace(" ", "T"));
                 Log build = Log.builder()
-                        .dateTime(dateTime)
-                        .threadName(strings[1].trim())
-                        .logLevel(LogLevel.valueOf(strings[2].trim()))
-                        .classPath(classPathAndMessage[0].trim())
-                        .message(classPathAndMessage[1].trim())
+                        .dateTime(dateTime.toString())
+                        .threadName(threadName)
+                        .logLevel(LogLevel.valueOf(logLevel))
+                        .classPath(loggerName)
+                        .message(message)
                         .build();
                 logs.add(build);
             } catch (Exception e) {

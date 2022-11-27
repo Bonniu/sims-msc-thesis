@@ -4,15 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mgr.potentialsi.alerting.mail.model.Mail;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import javax.mail.*;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.util.Properties;
 
 @Slf4j
 @Component
@@ -36,8 +35,8 @@ public class Sender {
 
     private void send(Mail mail) throws MessagingException {
         var message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(properties.getMailSender()));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(properties.getMailReceivers()));
+        message.setFrom(new InternetAddress(properties.getSender()));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(properties.getReceivers()));
         message.setSubject(mail.getTopic());
         message.setContent(mail.getBody(), "text/html; charset=utf-8");
         Transport.send(message);

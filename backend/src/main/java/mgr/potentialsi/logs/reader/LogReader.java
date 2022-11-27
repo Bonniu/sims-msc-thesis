@@ -10,12 +10,17 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class LogReader {
 
+    /*
+     * Read logs from directory 'logs'
+     * Returns list of logs as String - one log line = one object
+     * Log lines start with '$'
+     * */
     public static List<String> readLogs() throws IOException {
         var logDirectoryPath = "logs"; // todo properties
         var delimiter = "$";
@@ -29,7 +34,7 @@ public class LogReader {
             if (fileEntry.isDirectory()) {
                 continue;
             }
-            try (BufferedReader reader = Files.newBufferedReader(Paths.get(fileEntry.getPath()))) {
+            try (BufferedReader reader = Files.newBufferedReader(Paths.get(fileEntry.getPath()))) { // opened file
                 var lineIterator = reader.lines().iterator();
                 var lines = new ArrayList<String>();
                 StringBuilder line = new StringBuilder();
@@ -37,15 +42,11 @@ public class LogReader {
                     var tmp = lineIterator.next();
                     if (tmp.startsWith(delimiter)) {
                         if (!line.toString().equals("")) lines.add(line.toString());
-                        line = new StringBuilder(tmp.replace(delimiter, ""));
+                        line = new StringBuilder(tmp.replace(delimiter, "")); // removing file
                     } else {
                         line.append("\n").append(tmp);
                     }
                 }
-
-
-//                var logsStr = Arrays.stream(reader.lines().toList().toString().split("\\$"))
-//                        .filter(str -> str.length() > 1).toList();
                 logs.addAll(lines);
             }
         }
@@ -71,7 +72,7 @@ public class LogReader {
             log.error("Exception while reading log file directory: ", e);
             return null;
         }
-        logFiles.sort((a, b) -> Long.compare(a.lastModified(), b.lastModified()));
+        logFiles.sort(Comparator.comparingLong(File::lastModified));
         return logFiles;
     }
 }

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import mgr.potentialsi.alerting.mail.model.Mail;
 import mgr.potentialsi.alerting.mail.repository.MailRepository;
 import mgr.potentialsi.alerting.sender.Sender;
-import mgr.potentialsi.exceptionhandling.ExceptionToEmailMessageParser;
 import org.springframework.stereotype.Service;
 
 @Service

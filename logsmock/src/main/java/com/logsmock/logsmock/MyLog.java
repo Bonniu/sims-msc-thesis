@@ -15,9 +15,14 @@ public class MyLog implements Comparable<MyLog> {
     private String username;
     private String message;
     private String type;
+    private boolean legit;
 
     public MyLog(LocalDate date, LocalTime time, String username, String message) {
-        this(date, time, username, message, " INFO");
+        this(date, time, username, message, " INFO", true);
+    }
+
+    public MyLog(LocalDate date, LocalTime time, String username, String message, boolean legit) {
+        this(date, time, username, message, " INFO", legit);
     }
 
     @Override
@@ -34,11 +39,11 @@ public class MyLog implements Comparable<MyLog> {
 
     @Override
     public String toString() {
-        return
-                getDate() + "T" + resolveTimeString() + ".000+01:00 " //date and time
-                        + getType() // log type
-                        + " 17948 --- [           main] c.logsmock.logsmock.LogsmockApplication  : " // random, not used
-                        + getMessage(); // message
+        return "###" + // distinguish between system and normal logs
+                getDate() + "T" + resolveTimeString() + ".000 " //date and time
+                + getType() // log type
+                + " 17948 --- [           main] c.g.DoctorOfficeApplication.VisitService : " // random, not used
+                + getMessage(); // message
     }
 
     private String resolveTimeString() {

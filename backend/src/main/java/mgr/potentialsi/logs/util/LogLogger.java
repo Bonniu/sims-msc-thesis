@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import mgr.potentialsi.logs.processor.LogProcessorStatus;
 import org.springframework.stereotype.Component;
 
-import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.Date;
 

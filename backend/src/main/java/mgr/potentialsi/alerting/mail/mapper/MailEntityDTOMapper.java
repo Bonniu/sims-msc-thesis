@@ -1,7 +1,7 @@
 package mgr.potentialsi.alerting.mail.mapper;
 
-import mgr.potentialsi.alerting.mail.model.Mail;
 import mgr.potentialsi.alerting.mail.dto.MailDTO;
+import mgr.potentialsi.alerting.mail.model.Mail;
 
 public class MailEntityDTOMapper {
 
