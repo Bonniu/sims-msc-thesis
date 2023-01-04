@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
-RUN ./mvnw depndency:go-offlinee
+RUN ./mvnw dependency:go-offline
 
 COPY src ./src
 EXPOSE 8080
