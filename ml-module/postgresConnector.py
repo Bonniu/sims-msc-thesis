@@ -10,7 +10,7 @@ class PostgresConnector:
 
     @staticmethod
     def get_db_connection():
-        conn = psycopg2.connect(host='localhost',
+        conn = psycopg2.connect(host='db-backend',
                                 port=5432,
                                 database='potentialsi',
                                 user='postgres',

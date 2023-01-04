@@ -9,19 +9,16 @@ services:
       - POSTGRES_DB=potentialsi
     ports:
       - "5432:5432"
-#  db_mock:
-#    image: postgres:14.1-alpine
-#    restart: always
-#    environment:
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_PASSWORD=password
-#    ports:
-#      - "5433:5432"
   frontend:
-    image: frontend-localhost:latest
+    image: frontend:latest
     restart: on-failure
     ports:
       - "4200:4200"
+  ml-module:
+    image: ml-module:latest
+    restart: on-failure
+    ports:
+      - "5000:5000"
   backend:
     image: backend:latest
     restart: on-failure
@@ -34,12 +31,11 @@ services:
 #      image: fluentd
 
 
-#    hello-world:
-#        image: hello-world
-#    volumes:
-#      - postgres-db:/var/lib/postgresql/data
-
-#
-#  volumes:
-#    postgres-db:
-#      driver: local
+#  db_mock:
+#    image: postgres:14.1-alpine
+#    restart: always
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=password
+#    ports:
+#      - "5433:5432"
