@@ -9,8 +9,12 @@ import mgr.potentialsi.logs.reader.LogReader;
 import mgr.potentialsi.logs.util.LogLogger;
 import mgr.potentialsi.machinelearning.MLService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
@@ -23,13 +27,32 @@ public class LogAnalyser {
 
     @Value("${log.reading.period}")
     private final int logParsingPeriod = 1000;
-
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final MLService mLService;
+
 //
 //    @Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
 //    public void parseLogs() {
 //        new ReaderThread(mLService, logParsingPeriod).start();
 //    }
+
+    @GetMapping("/kafka")
+    public void kafkaTest() {
+        String message = String.valueOf(Math.random());
+        ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send("topic-test", message);
+
+        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+            @Override
+            public void onSuccess(SendResult<String, String> result) {
+                log.info("Sent message=[" + message + "] with offset=[" + result.getRecordMetadata().offset() + "]");
+            }
+
+            @Override
+            public void onFailure(Throwable ex) {
+                log.error("Unable to send message=[" + message + "] due to : " + ex.getMessage());
+            }
+        });
+    }
 
     @GetMapping("/mml")
     public void parseLogs() {

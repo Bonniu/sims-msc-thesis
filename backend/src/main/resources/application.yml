@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/potentialsi
+    username: postgres
+    password: password
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost:9092}
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:/init-db.sql
+
+# mail server
+mail:
+  sender: from@gmail.com
+  receivers: to@gmail.com
+  smtp:
+    username: 6e542b31b63665
+    password: f3ca9ed1168778
+    host: smtp.mailtrap.io
+    port: 2525
+    sslTrust: smtp.mailtrap.io
+
+# log reading
+log:
+  reading:
+    period: 1000
+
+# logging
+logging:
+  level:
+    sql: debug
+#   root: debug
