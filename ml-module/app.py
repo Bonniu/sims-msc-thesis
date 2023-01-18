@@ -1,10 +1,25 @@
+import configparser
+import json
+from threading import Event
+
 from flask import Flask, request
+from kafka import KafkaProducer
 
 from LogDTO import LogDTO
 from postgresConnector import PostgresConnector
 
+config = configparser.ConfigParser()
+config.read_file(open('properties.ini'))
 app = Flask(__name__)
-cur = PostgresConnector.get_db_connection().cursor()
+cur = PostgresConnector.get_db_connection(config['DATABASE']).cursor()
+
+KAFKA_SERVER = config['KAFKA']['host']
+TOPIC_NAME = "ml-result"
+
+producer = KafkaProducer(
+    bootstrap_servers=KAFKA_SERVER,
+    api_version=(0, 11, 15)
+)
 
 
 @app.route('/ml', methods=['POST'])
@@ -27,6 +42,10 @@ def init_machine_learning():
     # print(logs)
     print(mails)
     print(recipients)
+    dumps = json.dumps({"test": "Test"})
+    encode = str.encode(dumps)
+    producer.send(TOPIC_NAME, encode)
+    producer.flush()
     return recipients
 
 

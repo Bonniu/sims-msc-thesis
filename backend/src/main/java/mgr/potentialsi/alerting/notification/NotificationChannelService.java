@@ -13,12 +13,16 @@ public class NotificationChannelService {
 
     private final NotificationChannelRepository notificationChannelRepository;
 
-    public List<NotificationChannel> getNotificationChannels() {
-        return notificationChannelRepository.findAll();
+    public List<NotificationChannel> getActiveNotificationChannels() {
+        return notificationChannelRepository.getNotificationChannelsByIsActiveTrue();
     }
 
     public NotificationChannel getNotificationChannel(Integer id) {
         return notificationChannelRepository.findById(id).orElseThrow();
+    }
+
+    public List<NotificationChannel> getNotificationChannels() {
+        return notificationChannelRepository.findAll();
     }
 
     public void addNotificationChannel(NotificationChannel channel) {

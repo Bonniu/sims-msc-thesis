@@ -1,9 +1,14 @@
 package mgr.potentialsi.logs.analyser;
 
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mgr.potentialsi.alerting.notification.NotificationService;
+import mgr.potentialsi.alerting.notification.model.MessageType;
+import mgr.potentialsi.alerting.notification.model.Notification;
 import mgr.potentialsi.logs.parser.LogParser;
+import mgr.potentialsi.logs.processor.LogProcessor;
 import mgr.potentialsi.logs.processor.LogProcessorStatus;
 import mgr.potentialsi.logs.reader.LogReader;
 import mgr.potentialsi.logs.util.LogLogger;
@@ -18,6 +23,8 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Date;
 
 @Slf4j
 @Controller // -> @Component
@@ -29,6 +36,7 @@ public class LogAnalyser {
     private final int logParsingPeriod = 1000;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final MLService mLService;
+    private final NotificationService notificationService;
 
 //
 //    @Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
@@ -56,37 +64,48 @@ public class LogAnalyser {
 
     @GetMapping("/mml")
     public void parseLogs() {
-        new ReaderThread(mLService, logParsingPeriod).start();
+        new ReaderThread(mLService, logParsingPeriod, notificationService).start();
     }
 
+    @AllArgsConstructor
     public static class ReaderThread extends Thread {
 
-        private final int logParsingPeriod;
-
-        public ReaderThread(MLService mlService, int logParsingPeriod) {
-            this.mlService = mlService;
-            this.logParsingPeriod = logParsingPeriod;
-        }
-
         private final MLService mlService;
+        private final int logParsingPeriod;
+        private final NotificationService notificationService;
 
         public void run() {
-            LogLogger.logStart();
+            log.info(MessageFormat.format("Starting analysing logs at [{0}]", new Date()));
             try {
-                var logsAsStrings = LogReader.readLogs();
+                var logsAsStrings = LogReader.readLogs(); // wczytanie logów
                 if (logsAsStrings.isEmpty()) {
-                    LogLogger.logFinish();
+                    log.info(MessageFormat.format("Finished analysing logs at [{0}]", new Date()));
                     return;
                 }
-                var logList = LogParser.parse(logsAsStrings, logParsingPeriod);
+                var logList = LogParser.parse(logsAsStrings, logParsingPeriod); // przetworzenie logów do analizy
 
-                var mlResult = mlService.sendToMLApi(logList);
-//                var processorResult = LogProcessor.process(logList);
+                var mlResult = mlService.sendToMLApi(logList); // wysłanie logów do ML
 
-                LogProcessorStatus status = LogProcessorStatus.valueOf(mlResult); // FIXME temporary - will be returned
+                // sprawdzenie, czy są błędy/ostrzeżenia, jeśli nie ma to nie zostanie wysłane dodatkowe powiadomienie
+                var processorResult = LogProcessor.process(logList);
+
+                LogProcessorStatus status = LogProcessorStatus.valueOf("CORRECT"); // FIXME temporary - will be returned
                 // some more information about given data
+
+                String notificationMessage = "test";
+                MessageType messageType = MessageType.INFO;
+                notificationService.addNotification(notificationMessage, messageType);
+
                 switch (status) {
                     case ALERT:
+//                        var notificationDTO = NotificationDTO
+//                                .builder()
+//                                .seen(false)
+//                                .timestamp(new Date())
+//                                .recipients()
+//                                .channelId(1).build();
+
+                        notificationService.addNotification(new Notification());
                         LogLogger.logFinishWithStatus(status, "warn");
                         return;
                     case FATAL:

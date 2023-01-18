@@ -10,13 +10,6 @@ import java.util.Date;
 @Slf4j
 @Component
 public class LogLogger {
-    public static void logStart() {
-        log("info", MessageFormat.format("Starting analysing logs at [{0}]", new Date()));
-    }
-
-    public static void logFinish() {
-        log("info", MessageFormat.format("Finished analysing logs at [{0}]", new Date()));
-    }
 
     public static void logFinishWithStatus(LogProcessorStatus status, String type) {
         log(type, MessageFormat.format("Finished analysing logs at [{0}] with {1} status", new Date(), status));
@@ -31,6 +24,5 @@ public class LogLogger {
             default -> log.info(message);
         }
     }
-
 
 }
