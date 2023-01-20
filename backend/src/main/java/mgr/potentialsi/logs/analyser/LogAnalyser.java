@@ -7,10 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import mgr.potentialsi.alerting.notification.NotificationService;
 import mgr.potentialsi.alerting.notification.model.MessageType;
 import mgr.potentialsi.logs.parser.LogParser;
-import mgr.potentialsi.logs.processor.LogPreprocessor;
-import mgr.potentialsi.logs.processor.LogStatus;
+import mgr.potentialsi.logs.preprocessor.LogPreprocessor;
 import mgr.potentialsi.logs.reader.LogReader;
 import mgr.potentialsi.logs.util.LogLogger;
+import mgr.potentialsi.logs.util.LogStatus;
 import mgr.potentialsi.machinelearning.MLService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -96,6 +96,7 @@ public class LogAnalyser {
                     String notificationMessage = "ML Module returned ERROR, check if everything works properly";
                     MessageType messageType = MessageType.ERROR;
                     notificationService.addNotification(notificationMessage, messageType);
+                    return;
                 }
 
                 switch (preprocessorStatus) {

@@ -1,7 +1,6 @@
 package mgr.potentialsi.logs.util;
 
 import lombok.extern.slf4j.Slf4j;
-import mgr.potentialsi.logs.processor.LogStatus;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;

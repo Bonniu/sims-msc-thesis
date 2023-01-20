@@ -1,4 +1,4 @@
-package mgr.potentialsi.logs.processor;
+package mgr.potentialsi.logs.util;
 
 public enum LogStatus {
     CORRECT,

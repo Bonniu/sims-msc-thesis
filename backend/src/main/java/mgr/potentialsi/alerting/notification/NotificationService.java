@@ -1,10 +1,12 @@
 package mgr.potentialsi.alerting.notification;
 
 import lombok.RequiredArgsConstructor;
+import mgr.potentialsi.alerting.mail.dto.SendMailEvent;
 import mgr.potentialsi.alerting.notification.model.MessageType;
 import mgr.potentialsi.alerting.notification.model.Notification;
 import mgr.potentialsi.alerting.notification.model.NotificationChannel;
 import mgr.potentialsi.alerting.notification.repository.NotificationRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -17,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationService {
 
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final NotificationRepository notificationRepository;
     private final NotificationChannelService notificationChannelService;
 
@@ -42,6 +45,7 @@ public class NotificationService {
                     .timestamp(new Date())
                     .build();
             notificationRepository.save(notification);
+            applicationEventPublisher.publishEvent(new SendMailEvent(this, message));
         }
 
     }

@@ -1,16 +1,17 @@
-package mgr.potentialsi.logs.processor;
+package mgr.potentialsi.logs.preprocessor;
 
 import mgr.potentialsi.logs.LogLevel;
 import mgr.potentialsi.logs.LogList;
+import mgr.potentialsi.logs.util.LogStatus;
 
 public class LogPreprocessor {
 
-    public static LogProcessorResult process(LogList logList) {
+    public static LogPreprocessorResult process(LogList logList) {
         var nrOfLogsPerSec = getFrequencyOfLogs(logList);
         var errors = logList.getLogs().stream()
                 .filter(log -> log.getLogLevel().equals(LogLevel.ERROR) || log.getLogLevel().equals(LogLevel.FATAL)).toList();
 
-        var logResultBuilder = LogProcessorResult.builder().nrOfLogsPerSec(nrOfLogsPerSec);
+        var logResultBuilder = LogPreprocessorResult.builder().nrOfLogsPerSec(nrOfLogsPerSec);
         if (errors.isEmpty()) {
             return logResultBuilder.status(LogStatus.CORRECT).build();
         }
