@@ -8,7 +8,7 @@ import lombok.Data;
 public class LogProcessorResult {
 
     private int nrOfLogsPerSec;
-    private LogProcessorStatus status;
+    private LogStatus status;
 
 
 }

@@ -9,14 +9,15 @@ services:
       - POSTGRES_DB=potentialsi
     ports:
       - "5432:5432"
-#  backend:
-#    image: backend:latest
-#    restart: on-failure
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - POSTGRES_HOST=db-backend
-#      - KAFKA_HOST=kafka:9092
+  backend:
+    image: backend:latest
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      - POSTGRES_HOST=db-backend
+      - KAFKA_HOST=kafka:9092
+      - ML_MODULE_HOST=http://ml-module:5000/ml
   frontend:
     image: frontend:latest
     restart: on-failure

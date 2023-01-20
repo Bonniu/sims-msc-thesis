@@ -59,7 +59,7 @@ public class LogReader {
         List<File> logFiles;
         try {
             var folder = new File(logDirectoryPath);
-            log.info(MessageFormat.format("Reading logs from {0} ...", folder.toURI()));
+            log.info(MessageFormat.format("Reading logs from '{0}'", folder.toURI()));
             if (!folder.isDirectory()) {
                 throw new IllegalArgumentException("Given log directory is invalid, or is not a directory");
             }

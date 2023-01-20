@@ -1,7 +1,7 @@
 package mgr.potentialsi.logs.util;
 
 import lombok.extern.slf4j.Slf4j;
-import mgr.potentialsi.logs.processor.LogProcessorStatus;
+import mgr.potentialsi.logs.processor.LogStatus;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -11,8 +11,8 @@ import java.util.Date;
 @Component
 public class LogLogger {
 
-    public static void logFinishWithStatus(LogProcessorStatus status, String type) {
-        log(type, MessageFormat.format("Finished analysing logs at [{0}] with {1} status", new Date(), status));
+    public static void logFinishWithStatus(LogStatus status, String type) {
+        log(type, MessageFormat.format("{0} - Finished analysing logs at [{1}]", status, new Date()));
     }
 
     public static void log(String type, String message) {

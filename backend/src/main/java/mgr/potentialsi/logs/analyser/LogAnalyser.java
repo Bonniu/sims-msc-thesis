@@ -6,14 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mgr.potentialsi.alerting.notification.NotificationService;
 import mgr.potentialsi.alerting.notification.model.MessageType;
-import mgr.potentialsi.alerting.notification.model.Notification;
 import mgr.potentialsi.logs.parser.LogParser;
-import mgr.potentialsi.logs.processor.LogProcessor;
-import mgr.potentialsi.logs.processor.LogProcessorStatus;
+import mgr.potentialsi.logs.processor.LogPreprocessor;
+import mgr.potentialsi.logs.processor.LogStatus;
 import mgr.potentialsi.logs.reader.LogReader;
 import mgr.potentialsi.logs.util.LogLogger;
 import mgr.potentialsi.machinelearning.MLService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -63,8 +64,9 @@ public class LogAnalyser {
     }
 
     @GetMapping("/mml")
-    public void parseLogs() {
+    public ResponseEntity<String> parseLogs() {
         new ReaderThread(mLService, logParsingPeriod, notificationService).start();
+        return new ResponseEntity<String>("Processing started", HttpStatus.valueOf(200));
     }
 
     @AllArgsConstructor
@@ -83,42 +85,37 @@ public class LogAnalyser {
                     return;
                 }
                 var logList = LogParser.parse(logsAsStrings, logParsingPeriod); // przetworzenie logów do analizy
-
-                var mlResult = mlService.sendToMLApi(logList); // wysłanie logów do ML
+                var mlStatus = LogStatus.valueOf(mlService.sendToMLApi(logList)); // wysłanie logów do ML, zwraca PROCESSING / ERROR
 
                 // sprawdzenie, czy są błędy/ostrzeżenia, jeśli nie ma to nie zostanie wysłane dodatkowe powiadomienie
-                var processorResult = LogProcessor.process(logList);
+                var processorResult = LogPreprocessor.process(logList);
+                var preprocessorStatus = processorResult.getStatus();
 
-                LogProcessorStatus status = LogProcessorStatus.valueOf("CORRECT"); // FIXME temporary - will be returned
                 // some more information about given data
+                if (mlStatus == LogStatus.ERROR) {
+                    String notificationMessage = "ML Module returned ERROR, check if everything works properly";
+                    MessageType messageType = MessageType.ERROR;
+                    notificationService.addNotification(notificationMessage, messageType);
+                }
 
-                String notificationMessage = "test";
-                MessageType messageType = MessageType.INFO;
-                notificationService.addNotification(notificationMessage, messageType);
-
-                switch (status) {
+                switch (preprocessorStatus) {
                     case ALERT:
-//                        var notificationDTO = NotificationDTO
-//                                .builder()
-//                                .seen(false)
-//                                .timestamp(new Date())
-//                                .recipients()
-//                                .channelId(1).build();
-
-                        notificationService.addNotification(new Notification());
-                        LogLogger.logFinishWithStatus(status, "warn");
-                        return;
-                    case FATAL:
-                        LogLogger.logFinishWithStatus(status, "error");
+                        String notificationMessage = "Preprocessor returned Error, may indicate some serious vulnerabilities";
+                        MessageType messageType = MessageType.ERROR;
+                        notificationService.addNotification(notificationMessage, messageType);
+                        LogLogger.logFinishWithStatus(preprocessorStatus, "error");
                         return;
                     case CORRECT:
                     default:
-                        LogLogger.logFinishWithStatus(status, "info");
+//                        LogLogger.logFinishWithStatus(preprocessorStatus, "info");
                         return;
                 }
 
             } catch (IOException e) {
                 log.error("Analysing logs failed: ", e);
+                String notificationMessage = "Analysing logs failed";
+                MessageType messageType = MessageType.FATAL;
+                notificationService.addNotification(notificationMessage, messageType);
                 throw new RuntimeException(e);
             }
         }

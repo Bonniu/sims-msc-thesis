@@ -1,10 +1,11 @@
 package mgr.potentialsi.logs.processor;
 
-public enum LogProcessorStatus {
+public enum LogStatus {
     CORRECT,
     CONNECTION_ERROR,
     TIMEOUT,
     FATAL,
-    ALERT
-
+    ALERT,
+    PROCESSING,
+    ERROR
 }
