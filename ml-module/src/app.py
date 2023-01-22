@@ -23,8 +23,6 @@ kafka_template = KafkaTemplate(KafkaProducer(
 # main endpoint
 @app.route('/ml', methods=['POST'])
 def init_machine_learning():
-    # database_connect()  # Testy połączenia do bazy danych
-
     # Pobranie wysłanych z backendu logów
     logs_as_json = request.get_json()['logs']
     period = request.get_json()['period']
@@ -37,8 +35,8 @@ def init_machine_learning():
         logs.append(log)
 
     # Przetwarzanie w kierunku security
-    thread1 = Processor(logs, kafka_template, config['KAFKA']['backend-reply-topic-name'])
-    thread1.run()
+    processor = Processor(logs, period, kafka_template, config['KAFKA']['backend-reply-topic-name'])
+    processor.run()
 
     return LogStatus.PROCESSING.name
 

@@ -5,6 +5,7 @@ import mgr.potentialsi.alerting.mail.dto.SendMailEvent;
 import mgr.potentialsi.alerting.notification.model.MessageType;
 import mgr.potentialsi.alerting.notification.model.Notification;
 import mgr.potentialsi.alerting.notification.model.NotificationChannel;
+import mgr.potentialsi.alerting.notification.model.NotificationChannelType;
 import mgr.potentialsi.alerting.notification.repository.NotificationRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,9 @@ public class NotificationService {
                     .timestamp(new Date())
                     .build();
             notificationRepository.save(notification);
-            applicationEventPublisher.publishEvent(new SendMailEvent(this, message));
+            if (NotificationChannelType.MAIL.equals(channel.getType())) {
+                applicationEventPublisher.publishEvent(new SendMailEvent(this, message));
+            }
         }
 
     }

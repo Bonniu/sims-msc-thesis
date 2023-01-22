@@ -4,6 +4,7 @@ create table t_mails
 (
     id        SERIAL primary key,
     sent_to   varchar(64),
+    topic     varchar(64),
     body      varchar(500),
     status    varchar(10),
     timestamp timestamp
