@@ -23,5 +23,6 @@ class Processor(threading.Thread):
             self.kafka_template.send_message(self.backend_topic, "Processing finished, no vulnerabilities found",
                                              LogStatus.CORRECT)
         except Exception as e:
+            print(e)
             self.kafka_template.send_message(self.backend_topic, "Processing failed, reason: " + str(e),
                                              LogStatus.ERROR)
