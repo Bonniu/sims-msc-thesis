@@ -1,5 +1,7 @@
 package mgr.potentialsi.logs.reader;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -8,12 +10,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogReader {
 
     /*
@@ -22,10 +22,10 @@ public class LogReader {
      * Log lines start with '$'
      * */
     public static List<String> readLogs() throws IOException {
-        var logDirectoryPath = "logs"; // todo properties
+        var logDirectoryPath = "logs";
         var delimiter = "$";
         List<File> logFiles = getFileList(logDirectoryPath);
-        if (logFiles == null) {
+        if (logFiles.isEmpty()) {
             log.info("Given log directory is invalid, or is not a directory, or log directory is empty");
             return new ArrayList<>();
         }
@@ -41,12 +41,15 @@ public class LogReader {
                 while (lineIterator.hasNext()) {
                     var tmp = lineIterator.next();
                     if (tmp.startsWith(delimiter)) {
-                        if (!line.toString().equals("")) lines.add(line.toString());
+                        if (!line.toString().equals("")) {
+                            lines.add(line.toString());
+                        }
                         line = new StringBuilder(tmp.replace(delimiter, "")); // removing file
                     } else {
                         line.append("\n").append(tmp);
                     }
                 }
+                lines.add(line.toString());
                 logs.addAll(lines);
             }
         }
@@ -59,7 +62,7 @@ public class LogReader {
         List<File> logFiles;
         try {
             var folder = new File(logDirectoryPath);
-            log.info(MessageFormat.format("Reading logs from '{0}'", folder.toURI()));
+            log.info(MessageFormat.format("Reading logs from {0}", folder.toURI()));
             if (!folder.isDirectory()) {
                 throw new IllegalArgumentException("Given log directory is invalid, or is not a directory");
             }
@@ -70,7 +73,7 @@ public class LogReader {
             logFiles = Arrays.asList(logFilesTab);
         } catch (Exception e) {
             log.error("Exception while reading log file directory: ", e);
-            return null;
+            return Collections.emptyList();
         }
         logFiles.sort(Comparator.comparingLong(File::lastModified));
         return logFiles;

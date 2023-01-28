@@ -1,4 +1,5 @@
 from src.dto.LogDTO import LogDTO
+from src.securityintelligence.abnormality.abnormalityResultDTO import AbnormalityResultDTO
 from src.securityintelligence.siemalgorythm import SIEMAlgorythm
 
 
@@ -6,17 +7,25 @@ class Abnormality(SIEMAlgorythm):
     def __init___(self, logs: [LogDTO], period):
         SIEMAlgorythm.__init__(self, logs, period)
 
-    def run(self):
-        list_error = [log for log in self.logs if log.log_level == 'ERROR']
-        list_fatal = [log for log in self.logs if log.log_level == 'FATAL']
+    def run(self) -> AbnormalityResultDTO:
+        log_list_error = [log for log in self.logs if log.log_level == 'ERROR']
+        log_list_fatal = [log for log in self.logs if log.log_level == 'FATAL']
 
         # list of tuples with the words of the highest occurrence, sorted ascending
-        sorted_dicts_error = self.extract_sorted_dicts(list_error)
-        sorted_dicts_fatal = self.extract_sorted_dicts(list_fatal)
+        sorted_dicts_error = self.extract_sorted_dicts(log_list_error)
+        sorted_dicts_fatal = self.extract_sorted_dicts(log_list_fatal)
 
-        # todo stop-list
-        # todo more actions on error and fatal dictionaries - classification etc
-        pass
+        # stop-list
+
+        # more actions on error and fatal dictionaries - classification etc
+        error_exceptions = self.filter_exceptions(sorted_dicts_error)
+        fatal_exceptions = self.filter_exceptions(sorted_dicts_fatal)
+
+        # finding full stack trace for given exception
+        logs_of_error_exceptions = list(set(self.filter_logs_with_exceptions(error_exceptions, log_list_error)))
+        logs_of_fatal_exceptions = list(set(self.filter_logs_with_exceptions(fatal_exceptions, log_list_fatal)))
+
+        return AbnormalityResultDTO(logs_of_error_exceptions, logs_of_fatal_exceptions)
 
     @staticmethod
     def extract_sorted_dicts(listToParse):
@@ -47,23 +56,10 @@ class Abnormality(SIEMAlgorythm):
     @staticmethod
     def clean_text(text: str):
         # signs
-        text = text.replace(".", " ")
-        text = text.replace(",", " ")
-        text = text.replace(";", " ")
-        text = text.replace(":", " ")
-        text = text.replace("(", " ")
-        text = text.replace(")", " ")
-        text = text.replace("]", " ")
-        text = text.replace("[", " ")
-        text = text.replace("'", " ")
-        text = text.replace("-", " ")
-        text = text.replace("=", " ")
-        text = text.replace("+", " ")
-        text = text.replace("_", " ")
-        text = text.replace("&", " ")
-        text = text.replace("\"", " ")
-        text = text.replace("\\", " ")
-        text = text.replace("/", " ")
+        signs = [".", ",", ";", ":", "(", ")", "[", "]", "'", "-", "_", "+", "=", "%", "^", "&", "\"", "\\", "\t",
+                 "\n", "/"]
+        for s in signs:
+            text = text.replace(s, " ")
         return text
 
     @staticmethod
@@ -85,3 +81,20 @@ class Abnormality(SIEMAlgorythm):
             return True
         except ValueError:
             return False
+
+    @staticmethod
+    def filter_exceptions(dicts: []):
+        list = []
+        for d in dicts:
+            if d[0].__contains__("Exception") and d[0] != "Exception":
+                list.append(d)
+        return list
+
+    @staticmethod
+    def filter_logs_with_exceptions(exceptions, log_list):
+        logs_of_exceptions = []
+        for exc in exceptions:
+            for log in log_list:
+                if str(log).__contains__(exc[0]):
+                    logs_of_exceptions.append(log)
+        return logs_of_exceptions

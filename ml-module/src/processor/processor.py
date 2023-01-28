@@ -1,4 +1,5 @@
 import threading
+import traceback
 
 from src.dto.LogStatus import LogStatus
 from src.kafkatemplate.kafkaTemplate import KafkaTemplate
@@ -17,12 +18,20 @@ class Processor(threading.Thread):
 
     def run(self):
         try:
-            Abnormality(self.logs, self.period).run()
+            total_result = True
+            abnormality_result = Abnormality(self.logs, self.period).run()
             Anomaly(self.logs, self.period).run()
             Intrusion(self.logs, self.period).run()
-            self.kafka_template.send_message(self.backend_topic, "Processing finished, no vulnerabilities found",
-                                             LogStatus.CORRECT)
-        except Exception as e:
-            print(e)
-            self.kafka_template.send_message(self.backend_topic, "Processing failed, reason: " + str(e),
+
+            if (abnormality_result.status == LogStatus.ERROR or abnormality_result.status == LogStatus.FATAL):
+                total_result = False
+                self.kafka_template.send_message(self.backend_topic,
+                                                 "Processing finished, found errors: " + abnormality_result.get_error_logs_message(),
+                                                 LogStatus.ERROR)
+            if total_result:
+                self.kafka_template.send_message(self.backend_topic, "Processing finished, no vulnerabilities found",
+                                                 LogStatus.CORRECT)
+        except Exception:
+            exc = traceback.format_exc()
+            self.kafka_template.send_message(self.backend_topic, "Processing failed, reason: " + str(exc),
                                              LogStatus.ERROR)

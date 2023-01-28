@@ -38,12 +38,12 @@ insert into t_notification_mail_recipients(email) values ('test2@test.pl');
 drop table if exists t_notifications cascade;
 create table t_notifications
 (
-    id         SERIAL primary key,
-    timestamp  timestamp,
-    message    varchar(5000),
+    id           SERIAL primary key,
+    timestamp    timestamp,
+    message      text,
     message_type varchar(15),
-    channel_id SERIAL,
-    seen boolean,
+    channel_id   SERIAL,
+    seen         boolean,
 
     CONSTRAINT fk_channel FOREIGN KEY (channel_id) REFERENCES t_notification_channels (id)
 );

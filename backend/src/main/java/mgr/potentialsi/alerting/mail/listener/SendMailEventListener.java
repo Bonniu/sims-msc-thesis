@@ -17,7 +17,7 @@ public class SendMailEventListener implements ApplicationListener<SendMailEvent>
 
     @Override
     public void onApplicationEvent(SendMailEvent event) {
-        log.info("Received SendMailEvent - " + event.getMessage());
+        log.info("Received SendMailEvent");
         try {
             mailService.sendMail(new Mail()); // TODO prepare and send mail
         } catch (Exception e) {

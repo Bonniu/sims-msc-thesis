@@ -24,11 +24,11 @@ public class ListenerKafka {
     private final NotificationService notificationService;
     private final List<LogStatus> wrongStatuses = Arrays.asList(LogStatus.ALERT, LogStatus.ERROR, LogStatus.FATAL, LogStatus.TIMEOUT, LogStatus.TIMEOUT);
 
-    @KafkaListener(topics = "ml-result", groupId = "groupId")
+    @KafkaListener(topics = "${ml-module.kafka-topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) throws IOException {
         var mlResult = objectMapper.readValue(message, LogProcessorResult.class);
         if (wrongStatuses.contains(mlResult.getStatus())) {
-            log.error("Received response from ml-module: " + mlResult);
+            log.error("Received response from ml-module");
             MessageType messageType = LogStatusMessageTypeMapper.toMessageType(mlResult.getStatus());
             notificationService.addNotification(mlResult.getMessage(), messageType);
             return;

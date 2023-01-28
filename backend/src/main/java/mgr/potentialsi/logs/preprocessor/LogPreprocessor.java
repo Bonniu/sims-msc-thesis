@@ -1,9 +1,12 @@
 package mgr.potentialsi.logs.preprocessor;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import mgr.potentialsi.logs.LogLevel;
 import mgr.potentialsi.logs.LogList;
 import mgr.potentialsi.logs.util.LogStatus;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogPreprocessor {
 
     public static LogPreprocessorResult process(LogList logList) {

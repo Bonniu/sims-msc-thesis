@@ -10,6 +10,8 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: groupId
   sql:
     init:
       mode: always
@@ -39,3 +41,4 @@ logging:
 
 ml-module:
   host: ${ML_MODULE_HOST:http://localhost:5000/ml}
+  kafka-topic: "ml-result"

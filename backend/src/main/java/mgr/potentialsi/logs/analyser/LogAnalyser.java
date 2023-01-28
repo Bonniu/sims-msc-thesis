@@ -3,9 +3,11 @@ package mgr.potentialsi.logs.analyser;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mgr.potentialsi.alerting.notification.NotificationService;
 import mgr.potentialsi.alerting.notification.model.MessageType;
+import mgr.potentialsi.exception.LogAnalysingException;
 import mgr.potentialsi.logs.parser.LogParser;
 import mgr.potentialsi.logs.preprocessor.LogPreprocessor;
 import mgr.potentialsi.logs.reader.LogReader;
@@ -34,7 +36,7 @@ import java.util.Date;
 public class LogAnalyser {
 
     @Value("${log.reading.period}")
-    private final int logParsingPeriod = 1000;
+    private static final int LOG_PARSING_PERIOD = 1000;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final MLService mLService;
     private final NotificationService notificationService;
@@ -42,7 +44,8 @@ public class LogAnalyser {
 //
 //    @Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
 //    public void parseLogs() {
-//        new ReaderThread(mLService, logParsingPeriod).start();
+//        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService).start();
+//        return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
 //    }
 
     @GetMapping("/kafka")
@@ -65,8 +68,8 @@ public class LogAnalyser {
 
     @GetMapping("/mml")
     public ResponseEntity<String> parseLogs() {
-        new ReaderThread(mLService, logParsingPeriod, notificationService).start();
-        return new ResponseEntity<String>("Processing started", HttpStatus.valueOf(200));
+        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService).start();
+        return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
     }
 
     @AllArgsConstructor
@@ -76,6 +79,8 @@ public class LogAnalyser {
         private final int logParsingPeriod;
         private final NotificationService notificationService;
 
+        @SneakyThrows
+        @Override
         public void run() {
             log.info(MessageFormat.format("Starting analysing logs at [{0}]", new Date()));
             try {
@@ -102,13 +107,12 @@ public class LogAnalyser {
                 switch (preprocessorStatus) {
                     case ALERT:
                         String notificationMessage = "Preprocessor returned Error, may indicate some serious vulnerabilities";
-                        MessageType messageType = MessageType.ERROR;
+                        MessageType messageType = MessageType.WARNING;
                         notificationService.addNotification(notificationMessage, messageType);
                         LogLogger.logFinishWithStatus(preprocessorStatus, "error");
                         return;
                     case CORRECT:
                     default:
-//                        LogLogger.logFinishWithStatus(preprocessorStatus, "info");
                         return;
                 }
 
@@ -117,7 +121,7 @@ public class LogAnalyser {
                 String notificationMessage = "Analysing logs failed";
                 MessageType messageType = MessageType.FATAL;
                 notificationService.addNotification(notificationMessage, messageType);
-                throw new RuntimeException(e);
+                throw new LogAnalysingException(e);
             }
         }
 
