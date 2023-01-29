@@ -1,11 +1,12 @@
 class LogDTO:
-    def __init__(self, message, date_time, thread_name, log_level, classpath):
+    def __init__(self, message, date_time, thread_name, log_level, classpath, username):
         self.message = message
         self.date_time = date_time
         self.thread_name = thread_name
         self.log_level = log_level
         self.classpath = classpath
+        self.username = username
 
     def __str__(self) -> str:
         return str(self.date_time) + " " + str(self.thread_name) \
-               + " " + str(self.log_level) + " " + str(self.classpath) + ": " + str(self.message)
+               + " " + str(self.log_level) + " " + str(self.classpath) + ": " + str(self.username) + " - " + str(self.message)

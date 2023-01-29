@@ -31,7 +31,7 @@ def init_machine_learning():
     logs = []
     for log_json in logs_as_json:
         log = LogDTO(log_json['message'], log_json['dateTime'], log_json['threadName'], log_json['logLevel'],
-                     log_json['classPath'])
+                     log_json['classPath'], log_json['username'])
         logs.append(log)
 
     # Przetwarzanie w kierunku security

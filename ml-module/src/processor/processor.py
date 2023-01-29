@@ -20,7 +20,7 @@ class Processor(threading.Thread):
         try:
             total_result = True
             abnormality_result = Abnormality(self.logs, self.period).run()
-            Anomaly(self.logs, self.period).run()
+            Anomaly(self.logs, self.period, self.kafka_template).run()
             Intrusion(self.logs, self.period).run()
 
             if (abnormality_result.status == LogStatus.ERROR or abnormality_result.status == LogStatus.FATAL):

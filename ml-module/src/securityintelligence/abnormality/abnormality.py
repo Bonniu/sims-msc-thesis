@@ -4,7 +4,7 @@ from src.securityintelligence.siemalgorythm import SIEMAlgorythm
 
 
 class Abnormality(SIEMAlgorythm):
-    def __init___(self, logs: [LogDTO], period):
+    def __init__(self, logs: [LogDTO], period):
         SIEMAlgorythm.__init__(self, logs, period)
 
     def run(self) -> AbnormalityResultDTO:

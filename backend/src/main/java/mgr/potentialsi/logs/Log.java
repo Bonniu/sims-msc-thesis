@@ -12,5 +12,6 @@ public class Log {
     private String threadName;
     private LogLevel logLevel;
     private String classPath;
+    private String username;
 
 }
