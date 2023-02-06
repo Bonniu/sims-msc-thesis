@@ -1,4 +1,5 @@
 import configparser
+from datetime import datetime
 
 from flask import Flask, request
 from kafka import KafkaProducer
@@ -30,7 +31,14 @@ def init_machine_learning():
     # Przerobienie logów na DTO
     logs = []
     for log_json in logs_as_json:
-        log = LogDTO(log_json['message'], log_json['dateTime'], log_json['threadName'], log_json['logLevel'],
+        date_time_str = log_json['dateTime']
+        if date_time_str[-9] == "T":
+            date_time = datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M:%S')
+        elif date_time_str[-13] == "T":
+            date_time = datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M:%S.%f')
+        else:
+            date_time = datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M')
+        log = LogDTO(log_json['message'], date_time, log_json['threadName'], log_json['logLevel'],
                      log_json['classPath'], log_json['username'])
         logs.append(log)
 
