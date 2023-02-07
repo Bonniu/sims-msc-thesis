@@ -64,7 +64,7 @@ class Anomaly(SIEMAlgorythm):
         start_date_avg = Anomaly.get_avg_time(start_date_time_tab)
         end_date_avg = Anomaly.get_avg_time(end_date_time_tab)
         day_length_avg = Anomaly.get_difference_from_times(start_date_avg, end_date_avg)
-
+        nr_of_days_period = len(end_date_time_tab)
         # start_date_time_avg =
         pass
 
@@ -80,6 +80,8 @@ class Anomaly(SIEMAlgorythm):
         minutes = int((secs % 3600) / 60)
         if secs % 60 > 30:
             minutes += 1
+        if minutes == 60:
+            hours += 1
         return datetime(2023, 1, 1, hours, minutes)
 
     @staticmethod
