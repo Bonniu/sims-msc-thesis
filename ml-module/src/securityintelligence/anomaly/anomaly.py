@@ -5,9 +5,10 @@ from src.securityintelligence.siemalgorythm import SIEMAlgorythm
 
 
 class Anomaly(SIEMAlgorythm):
-    def __init__(self, logs: [LogDTO], period, kafka_template):
+    def __init__(self, logs: [LogDTO], period, kafka_template, db_conn):
         SIEMAlgorythm.__init__(self, logs, period)
         self.kafka_template = kafka_template
+        self.db_conn = db_conn
 
     def run(self):
         # filtering logs for every other user
@@ -23,8 +24,7 @@ class Anomaly(SIEMAlgorythm):
 
         pass
 
-    @staticmethod
-    def process_one_user(logs_user: [LogDTO], user):
+    def process_one_user(self, logs_user: [LogDTO], user):
         # controls for checking, if user logged/logged out correctly
         day_started = False
         curr_date_time = None
@@ -61,11 +61,32 @@ class Anomaly(SIEMAlgorythm):
                 return {"username": user}
 
         # learning habits
+        user_habits = Anomaly.get_user_habits(self.db_conn, user)
         start_date_avg = Anomaly.get_avg_time(start_date_time_tab)
         end_date_avg = Anomaly.get_avg_time(end_date_time_tab)
-        day_length_avg = Anomaly.get_difference_from_times(start_date_avg, end_date_avg)
         nr_of_days_period = len(end_date_time_tab)
-        # start_date_time_avg =
+        if user_habits is None:
+            Anomaly.insert_user_habits(self.db_conn, user, start_date_avg, end_date_avg, nr_of_days_period)
+        else:
+            start_hour_current = user_habits[1]
+            start_minute_current = user_habits[2]
+            end_hour_current = user_habits[3]
+            end_minute_current = user_habits[4]
+            nr_of_days_learned_current = user_habits[5]
+            ready_to_monitor = user_habits[6]
+
+            start_secs_current = start_hour_current * 3600 + start_minute_current * 60
+            end_secs_current = end_hour_current * 3600 + end_minute_current * 60
+            period = nr_of_days_learned_current + nr_of_days_period
+            start_avg_in_secs = (start_secs_current * nr_of_days_learned_current + Anomaly.as_secs(
+                start_date_avg) * nr_of_days_period) / (period)  # weight average start time
+            end_avg_in_secs = (end_secs_current * nr_of_days_learned_current + Anomaly.as_secs(
+                end_date_avg) * nr_of_days_period) / (period)  # weight average end time
+            start_time_after_correct = Anomaly.time_from_secs(start_avg_in_secs)
+            end_time_after_correct = Anomaly.time_from_secs(end_avg_in_secs)
+
+            Anomaly.update_user_habits(self.db_conn, user, start_time_after_correct, end_time_after_correct, period)
+
         pass
 
     @staticmethod
@@ -75,6 +96,10 @@ class Anomaly(SIEMAlgorythm):
         return Anomaly.time_from_secs(time_tab_sec_avg)
 
     @staticmethod
+    def as_secs(date_time):
+        return date_time.hour * 3600 + date_time.minute * 60
+
+    @staticmethod
     def time_from_secs(secs):
         hours = int(secs / 3600)
         minutes = int((secs % 3600) / 60)
@@ -82,6 +107,7 @@ class Anomaly(SIEMAlgorythm):
             minutes += 1
         if minutes == 60:
             hours += 1
+            minutes = 0
         return datetime(2023, 1, 1, hours, minutes)
 
     @staticmethod
@@ -90,3 +116,46 @@ class Anomaly(SIEMAlgorythm):
         datetime2_in_secs = datetime2.hour * 3600 + datetime2.minute * 60 + datetime2.second
         secs = datetime2_in_secs - datetime1_in_secs
         return Anomaly.time_from_secs(secs)
+
+    @staticmethod
+    def get_user_habits(db_conn, user_id):
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("SELECT * FROM t_users_habits where user_id='" + user_id + "' LIMIT 1")
+        user_habits = db_cursor.fetchone()
+        return user_habits
+
+    @staticmethod
+    def insert_user_habits(db_conn, user_id, start_date_avg, end_date_avg, nr_of_days_period):
+        ready_to_monitor = False
+        if nr_of_days_period >= 20:
+            ready_to_monitor = True
+        db_cursor = db_conn.cursor()
+        query = "INSERT INTO t_users_habits VALUES ("
+        query += "'" + user_id + "', "
+        query += str(start_date_avg.hour) + ", "  # start_hour
+        query += str(start_date_avg.minute) + ", "  # start_minute
+        query += str(end_date_avg.hour) + ", "  # end_hour
+        query += str(end_date_avg.minute) + ", "  # end_minute
+        query += str(nr_of_days_period) + ", "  # nr_of_days_learned
+        query += str(ready_to_monitor)  # ready_to_monitor
+        query += ")"
+        db_cursor.execute(query)
+        db_conn.commit()
+
+    @staticmethod
+    def update_user_habits(db_conn, user_id, start_date_avg, end_date_avg, nr_of_days_period):
+        ready_to_monitor = False
+        if nr_of_days_period >= 20:
+            ready_to_monitor = True
+        db_cursor = db_conn.cursor()
+        query = "UPDATE t_users_habits SET "
+        query += "user_id = '" + user_id + "', "
+        query += "start_hour = " + str(start_date_avg.hour) + ", "  # start_hour
+        query += "start_minute = " + str(start_date_avg.minute) + ", "  # start_minute
+        query += "end_hour = " + str(end_date_avg.hour) + ", "  # end_hour
+        query += "end_minute = " + str(end_date_avg.minute) + ", "  # end_minute
+        query += "nr_of_days_learned = " + str(nr_of_days_period) + ", "  # nr_of_days_learned
+        query += "ready_to_monitor = " + str(ready_to_monitor)  # ready_to_monitor
+        query += " where user_id = '" + user_id + "'"
+        db_cursor.execute(query)
+        db_conn.commit()

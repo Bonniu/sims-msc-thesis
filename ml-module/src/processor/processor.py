@@ -9,18 +9,19 @@ from src.securityintelligence.intrusion.intrusion import Intrusion
 
 
 class Processor(threading.Thread):
-    def __init__(self, logs: [], period: int, kafka_template: KafkaTemplate, backend_topic: str):
+    def __init__(self, logs: [], period: int, kafka_template: KafkaTemplate, backend_topic: str, db_conn):
         threading.Thread.__init__(self)
         self.backend_topic = backend_topic
         self.logs = logs
         self.period = period
         self.kafka_template = kafka_template
+        self.db_conn = db_conn
 
     def run(self):
         try:
             total_result = True
             abnormality_result = Abnormality(self.logs, self.period).run()
-            Anomaly(self.logs, self.period, self.kafka_template).run()
+            Anomaly(self.logs, self.period, self.kafka_template, self.db_conn).run()
             Intrusion(self.logs, self.period).run()
 
             if (abnormality_result.status == LogStatus.ERROR or abnormality_result.status == LogStatus.FATAL):

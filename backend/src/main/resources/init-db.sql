@@ -32,8 +32,10 @@ create table t_notification_mail_recipients
     email varchar(128)
 );
 
-insert into t_notification_mail_recipients(email) values ('test1@test.pl');
-insert into t_notification_mail_recipients(email) values ('test2@test.pl');
+insert into t_notification_mail_recipients(email)
+values ('test1@test.pl');
+insert into t_notification_mail_recipients(email)
+values ('test2@test.pl');
 
 drop table if exists t_notifications cascade;
 create table t_notifications
@@ -58,3 +60,14 @@ create table t_notifications_recipients
     CONSTRAINT fk_recipient FOREIGN KEY (recipient_id) REFERENCES t_notification_mail_recipients (id)
 );
 
+drop table if exists t_users_habits cascade;
+create table t_users_habits
+(
+    user_id            varchar(32),
+    start_hour         SERIAL,
+    start_minute       SERIAL,
+    end_hour           SERIAL,
+    end_minute         SERIAL,
+    nr_of_days_learned SERIAL,
+    ready_to_monitor   boolean
+);

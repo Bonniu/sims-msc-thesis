@@ -14,7 +14,7 @@ from src.processor.processor import Processor
 config = configparser.ConfigParser()
 config.read_file(open('properties.ini'))
 app = Flask(__name__)
-db_cursor = PostgresConnector.get_db_connection(config['DATABASE']).cursor()
+db_conn = PostgresConnector.get_db_connection(config['DATABASE'])
 kafka_template = KafkaTemplate(KafkaProducer(
     bootstrap_servers=config['KAFKA']['host'],
     api_version=(0, 11, 15)
@@ -43,7 +43,7 @@ def init_machine_learning():
         logs.append(log)
 
     # Przetwarzanie w kierunku security
-    processor = Processor(logs, period, kafka_template, config['KAFKA']['backend-reply-topic-name'])
+    processor = Processor(logs, period, kafka_template, config['KAFKA']['backend-reply-topic-name'], db_conn)
     processor.run()
 
     return LogStatus.PROCESSING.name
@@ -54,6 +54,7 @@ if __name__ == '__main__':
 
 
 def database_connect():
+    db_cursor = db_conn.cursor()
     db_cursor.execute('SELECT * FROM t_notification_channels;')
     mails = db_cursor.fetchall()
     print(mails)
