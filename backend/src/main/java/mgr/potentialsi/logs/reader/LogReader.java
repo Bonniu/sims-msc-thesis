@@ -21,8 +21,7 @@ public class LogReader {
      * Returns list of logs as String - one log line = one object
      * Log lines start with '$'
      * */
-    public static List<String> readLogs() throws IOException {
-        var logDirectoryPath = "logs";
+    public static List<String> readLogs(String logDirectoryPath) throws IOException {
         var delimiter = "$";
         List<File> logFiles = getFileList(logDirectoryPath);
         if (logFiles.isEmpty()) {

@@ -41,19 +41,12 @@ public class LogAnalyser {
     private final MLService mLService;
     private final NotificationService notificationService;
 
-//
-//    @Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
-//    public void parseLogs() {
-//        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService).start();
-//        return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
-//    }
-
     @GetMapping("/kafka")
     public void kafkaTest() {
         String message = String.valueOf(Math.random());
         ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send("topic-test", message);
 
-        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+        future.addCallback(new ListenableFutureCallback<>() {
             @Override
             public void onSuccess(SendResult<String, String> result) {
                 log.info("Sent message=[" + message + "] with offset=[" + result.getRecordMetadata().offset() + "]");
@@ -68,9 +61,16 @@ public class LogAnalyser {
 
     @GetMapping("/mml")
     public ResponseEntity<String> parseLogs() {
-        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService).start();
+        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logs").start();
         return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
     }
+
+    @GetMapping("/mmlInit") //@Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
+    public ResponseEntity<String> parseLogsInitValid() {
+        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logsV").start();
+        return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
+    }
+
 
     @AllArgsConstructor
     public static class ReaderThread extends Thread {
@@ -78,13 +78,14 @@ public class LogAnalyser {
         private final MLService mlService;
         private final int logParsingPeriod;
         private final NotificationService notificationService;
+        private final String logDirectoryPath;
 
         @SneakyThrows
         @Override
         public void run() {
             log.info(MessageFormat.format("Starting analysing logs at [{0}]", new Date()));
             try {
-                var logsAsStrings = LogReader.readLogs(); // wczytanie logów
+                var logsAsStrings = LogReader.readLogs(logDirectoryPath); // wczytanie logów
                 if (logsAsStrings.isEmpty()) {
                     log.info(MessageFormat.format("Finished analysing logs at [{0}]", new Date()));
                     return;
@@ -113,7 +114,6 @@ public class LogAnalyser {
                         return;
                     case CORRECT:
                     default:
-                        return;
                 }
 
             } catch (IOException e) {
