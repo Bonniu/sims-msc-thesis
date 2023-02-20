@@ -19,7 +19,7 @@ export class NotificationsComponent implements OnInit {
     'messageType',
     'message',
     'seen',
-    'selected'
+    'selected',
   ];
   @ViewChild(MatTable) notificationsTable!: MatTable<any>;
 
@@ -41,7 +41,7 @@ export class NotificationsComponent implements OnInit {
       notificationClass += 'fw-bold ';
     }
     if (notification.messageType == 'ERROR')
-      notificationClass += 'text-warning ';
+      notificationClass += 'text-danger ';
     if (notification.messageType == 'WARNING')
       notificationClass += 'text-dark ';
     if (notification.messageType == 'FATAL')
@@ -73,26 +73,22 @@ export class NotificationsComponent implements OnInit {
   }
 
   deleteSelected(notifications: Notification[]) {
-    let ids = notifications.filter(n => n.selected).map(n => n.id);
+    let ids = notifications.filter((n) => n.selected).map((n) => n.id);
     for (const id of ids) {
-      console.log(id)
-      this.notificationService
-        .deleteNotification(id)
-        .subscribe((next) => {
-          console.log("done")
-        });
+      console.log(id);
+      this.notificationService.deleteNotification(id).subscribe((next) => {
+        console.log('done');
+      });
     }
     window.location.reload();
   }
 
   deleteAll() {
-    for (const id of this.notifications.map(n => n.id)) {
-      console.log(id)
-      this.notificationService
-        .deleteNotification(id)
-        .subscribe((next) => {
-          console.log("done")
-        });
+    for (const id of this.notifications.map((n) => n.id)) {
+      console.log(id);
+      this.notificationService.deleteNotification(id).subscribe((next) => {
+        console.log('done');
+      });
     }
     window.location.reload();
   }

@@ -1,0 +1,53 @@
+<h1 class="logs-browser-header"><strong>Logs from application</strong></h1>
+
+<table #notificationsTable mat-table matSort [dataSource]="this.logsToDisplay" class="rounded-5">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef><strong>ID</strong></th>
+    <td mat-cell *matCellDef="let log"> {{log.id}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="dateTime">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef><strong>Date</strong></th>
+    <td mat-cell *matCellDef="let log"> {{log.dateTime | date: 'yyyy-MM-dd HH:mm:ss.SSS' }} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="message">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef><strong>Message</strong></th>
+    <td mat-cell *matCellDef="let log"> {{log.message}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="threadName">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef><strong>Thread name</strong></th>
+    <td mat-cell *matCellDef="let log"> {{log.threadName}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="logLevel">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef><strong>Log level</strong></th>
+    <td mat-cell *matCellDef="let log"> {{log.logLevel}} </td>
+  </ng-container>
+
+
+  <ng-container matColumnDef="classPath">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef><strong>Class path</strong></th>
+    <td mat-cell *matCellDef="let log"> {{log.classPath}} </td>
+  </ng-container>
+
+
+  <ng-container matColumnDef="username">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef><strong>Username</strong></th>
+    <td mat-cell *matCellDef="let log"> {{log.username}} </td>
+  </ng-container>
+
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+</table>
+
+<button mat-raised-button color="primary" (click)="showNextLogs()"
+        class="margin-right-20 add-recipient-btn">Show more
+</button>
+
+<button mat-raised-button color="primary" (click)="goToStart()"
+        class="margin-right-20 add-recipient-btn">Go to start
+</button>
