@@ -10,7 +10,9 @@ export class NotificationService {
   constructor(private http: HttpClient) {}
 
   getAllNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(this.configUrl);
+    let observable = this.http.get<Notification[]>(this.configUrl);
+    console.log(observable)
+    return observable;
   }
 
   updateNotification(notification: Notification): Observable<void> {

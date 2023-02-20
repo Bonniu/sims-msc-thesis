@@ -15,9 +15,23 @@ import { FormsModule } from '@angular/forms';
 import { MatSortModule } from '@angular/material/sort';
 import { MessageModalComponent } from './notifications/message-modal/message-modal.component';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { EmailConfigComponent } from './email-config/email-config.component';
+import {MatGridListModule} from "@angular/material/grid-list";
+import {MatListModule} from "@angular/material/list";
+import {NotificationRecipientService} from "./email-config/service/notification-recipient.service";
+import {ScrollingModule} from "@angular/cdk/scrolling";
+import {MatIconModule} from "@angular/material/icon";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
 
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, NotificationsComponent, MessageModalComponent],
+  declarations: [
+    AppComponent,
+    DashboardComponent,
+    NotificationsComponent,
+    MessageModalComponent,
+    EmailConfigComponent,
+  ],
   imports: [
     BrowserModule,
     HttpClientModule,
@@ -28,14 +42,21 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
     MatButtonModule,
     FormsModule,
     MatSortModule,
-    MatDialogModule
+    MatDialogModule,
+    MatGridListModule,
+    MatListModule,
+    ScrollingModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   providers: [
     {
       provide: MatDialogRef,
-      useValue: {}
+      useValue: {},
     },
-    NotificationService
+    NotificationService,
+    NotificationRecipientService,
   ],
   bootstrap: [AppComponent],
 })
