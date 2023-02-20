@@ -71,3 +71,15 @@ create table t_users_habits
     nr_of_days_learned SERIAL,
     ready_to_monitor   boolean
 );
+
+drop table if exists t_logs cascade;
+create table t_logs
+(
+    id          SERIAL primary key,
+    message     text,
+    date_time   varchar(64),
+    thread_name varchar(65),
+    log_level   varchar(67),
+    class_path  varchar(68),
+    username    varchar(69)
+);

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import mgr.potentialsi.alerting.notification.NotificationService;
 import mgr.potentialsi.alerting.notification.model.MessageType;
 import mgr.potentialsi.exception.LogAnalysingException;
+import mgr.potentialsi.logs.LogService;
 import mgr.potentialsi.logs.parser.LogParser;
 import mgr.potentialsi.logs.preprocessor.LogPreprocessor;
 import mgr.potentialsi.logs.reader.LogReader;
@@ -40,6 +41,7 @@ public class LogAnalyser {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final MLService mLService;
     private final NotificationService notificationService;
+    private final LogService logService;
 
     @GetMapping("/kafka")
     public void kafkaTest() {
@@ -61,13 +63,13 @@ public class LogAnalyser {
 
     @GetMapping("/mml")
     public ResponseEntity<String> parseLogs() {
-        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logs").start();
+        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logs", logService).start();
         return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
     }
 
     @GetMapping("/mmlInit") //@Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
     public ResponseEntity<String> parseLogsInitValid() {
-        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logsV").start();
+        new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logsV", logService).start();
         return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
     }
 
@@ -79,6 +81,7 @@ public class LogAnalyser {
         private final int logParsingPeriod;
         private final NotificationService notificationService;
         private final String logDirectoryPath;
+        private final LogService logService;
 
         @SneakyThrows
         @Override
@@ -91,6 +94,7 @@ public class LogAnalyser {
                     return;
                 }
                 var logList = LogParser.parse(logsAsStrings, logParsingPeriod); // przetworzenie logów do analizy
+                logService.saveLogs(logList);  // zapisanie logów do bazy danych
                 var mlStatus = LogStatus.valueOf(mlService.sendToMLApi(logList)); // wysłanie logów do ML, zwraca PROCESSING / ERROR
 
                 // sprawdzenie, czy są błędy/ostrzeżenia, jeśli nie ma to nie zostanie wysłane dodatkowe powiadomienie
