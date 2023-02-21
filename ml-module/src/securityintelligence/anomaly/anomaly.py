@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from src.dto.LogDTO import LogDTO
+from src.dto.LogStatus import LogStatus
+from src.securityintelligence.anomaly.anomalyResultDTO import AnomalyResultDTO
 from src.securityintelligence.siemalgorythm import SIEMAlgorythm
 
 
@@ -10,7 +12,7 @@ class Anomaly(SIEMAlgorythm):
         self.kafka_template = kafka_template
         self.db_conn = db_conn
 
-    def run(self):
+    def run(self) -> AnomalyResultDTO:
         # filtering logs for every other user
         users = set([l.username for l in self.logs if l.username is not None])
         all_logs = self.logs.copy()
@@ -19,7 +21,10 @@ class Anomaly(SIEMAlgorythm):
             logs_user = [l for l in self.logs if l.username == user]
             all_logs = list(set(all_logs) - set(logs_user))
             # processing for one user
-            self.process_one_user(logs_user, user)
+            result = self.process_one_user(logs_user, user)
+            if result == False:
+                self.kafka_template.send_message("block-user-topic", user, LogStatus.ERROR)
+                return AnomalyResultDTO(user)
             pass
 
         pass
@@ -85,9 +90,21 @@ class Anomaly(SIEMAlgorythm):
             start_time_after_correct = Anomaly.time_from_secs(start_avg_in_secs)
             end_time_after_correct = Anomaly.time_from_secs(end_avg_in_secs)
 
+            user_correct = Anomaly.check_if_user_is_in_time(user, start_date_time_tab, end_date_time_tab, start_time_after_correct, end_time_after_correct)
+            if not user_correct:
+                return False
             Anomaly.update_user_habits(self.db_conn, user, start_time_after_correct, end_time_after_correct, period)
 
-        pass
+        return True
+
+    @staticmethod
+    def check_if_user_is_in_time(user, new_start_date_time_tab, new_end_date_time_tab, start_time_after_correct, end_time_after_correct):
+        for start_date in new_start_date_time_tab:
+            start_date_new_secs = Anomaly.as_secs(start_date)
+            start_time_correct = Anomaly.as_secs(start_time_after_correct)
+            if start_time_correct + 900 < start_date_new_secs or start_time_correct - 900 > start_date_new_secs: # wyszło poza zakres, do zgłoszenia
+                return False
+        return True
 
     @staticmethod
     def get_avg_time(date_time_tab):

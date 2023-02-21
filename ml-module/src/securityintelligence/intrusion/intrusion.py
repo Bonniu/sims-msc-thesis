@@ -1,3 +1,4 @@
+from src.securityintelligence.intrusion.intrusionResultDTO import IntrusionResultDTO
 from src.securityintelligence.siemalgorythm import SIEMAlgorythm
 
 
@@ -6,4 +7,11 @@ class Intrusion(SIEMAlgorythm):
         SIEMAlgorythm.__init__(self, logs, period)
 
     def run(self):
-        return True
+        logs = """
+        Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
+        
+        
+        
+        
+        """
+        return IntrusionResultDTO("kpiatek", logs)

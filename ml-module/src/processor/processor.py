@@ -21,13 +21,23 @@ class Processor(threading.Thread):
         try:
             total_result = True
             abnormality_result = Abnormality(self.logs, self.period).run()
-            Anomaly(self.logs, self.period, self.kafka_template, self.db_conn).run()
-            Intrusion(self.logs, self.period).run()
+            anomaly_result = Anomaly(self.logs, self.period, self.kafka_template, self.db_conn).run()
+            intrusion_result = Intrusion(self.logs, self.period).run()
 
             if (abnormality_result.status == LogStatus.ERROR or abnormality_result.status == LogStatus.FATAL):
                 total_result = False
                 self.kafka_template.send_message(self.backend_topic,
-                                                 "Processing finished, found errors: " + abnormality_result.get_error_logs_message(),
+                                                 "Abnormality module found errors ! \nLOGS:\n " + abnormality_result.get_error_logs_message(),
+                                                 LogStatus.ERROR)
+            if (anomaly_result is not None):
+                total_result = False
+                self.kafka_template.send_message(self.backend_topic,
+                                                 "Anomaly module found errors, user blocked - " + anomaly_result.user,
+                                                 LogStatus.ERROR)
+            if (intrusion_result is not None):
+                total_result = False
+                self.kafka_template.send_message(self.backend_topic,
+                                                 "Intrusion module found errors, user blocked - " + intrusion_result.user + "\n\nLOGS: " + intrusion_result.stack_trace,
                                                  LogStatus.ERROR)
             if total_result:
                 self.kafka_template.send_message(self.backend_topic, "Processing finished, no vulnerabilities found",

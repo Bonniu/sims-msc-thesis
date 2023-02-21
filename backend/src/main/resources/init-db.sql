@@ -21,7 +21,7 @@ create table t_notification_channels
 );
 
 insert into t_notification_channels(type, is_active)
-values ('MAIL', true);
+values ('MAIL', false);
 insert into t_notification_channels(type, is_active)
 values ('FRONT', true);
 
