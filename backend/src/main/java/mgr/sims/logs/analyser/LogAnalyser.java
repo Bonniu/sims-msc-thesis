@@ -18,12 +18,8 @@ import mgr.sims.machinelearning.MLService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
@@ -31,48 +27,28 @@ import java.text.MessageFormat;
 import java.util.Date;
 
 @Slf4j
-@Controller // -> @Component
+@Controller
 @EnableScheduling
 @RequiredArgsConstructor
 public class LogAnalyser {
 
     @Value("${log.reading.period}")
     private static final int LOG_PARSING_PERIOD = 1000;
-    private final KafkaTemplate<String, String> kafkaTemplate;
     private final MLService mLService;
     private final NotificationService notificationService;
     private final LogService logService;
 
-    @GetMapping("/kafka")
-    public void kafkaTest() {
-        String message = String.valueOf(Math.random());
-        ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send("topic-test", message);
-
-        future.addCallback(new ListenableFutureCallback<>() {
-            @Override
-            public void onSuccess(SendResult<String, String> result) {
-                log.info("Sent message=[" + message + "] with offset=[" + result.getRecordMetadata().offset() + "]");
-            }
-
-            @Override
-            public void onFailure(Throwable ex) {
-                log.error("Unable to send message=[" + message + "] due to : " + ex.getMessage());
-            }
-        });
-    }
-
-    @GetMapping("/mml")
+    @GetMapping("/mlInvalid")
     public ResponseEntity<String> parseLogs() {
         new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logs", logService).start();
         return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
     }
 
-    @GetMapping("/mmlInit") //@Scheduled(fixedDelay = logParsingPeriod)//cron = "1 * * * * *")
+    @GetMapping("/mlTest")
     public ResponseEntity<String> parseLogsInitValid() {
         new ReaderThread(mLService, LOG_PARSING_PERIOD, notificationService, "logsV", logService).start();
         return new ResponseEntity<>("Processing started", HttpStatus.valueOf(200));
     }
-
 
     @AllArgsConstructor
     public static class ReaderThread extends Thread {
