@@ -11,9 +11,9 @@ Aby uruchomić system, należy zbudować obrazy serwisów, a następnie uruchomi
 
 
 ## Krok po kroku:
-1. Przejdź do katalogu `frontend` i wykonaj polecenie `docker build -t frontend .` (~15min)
-2. Przejdź do katalogu `backend` i wykonaj polecenie `docker build -t backend .` (~5min)
-3. Przejdź do katalogu `ml-module` i wykonaj polecenie `docker build -t ml-module .` (~10min)
+1. Przejdź do katalogu `frontend` i wykonaj polecenie `docker build -t sims-frontend .` (~15min)
+2. Przejdź do katalogu `backend` i wykonaj polecenie `docker build -t sims-backend .` (~5min)
+3. Przejdź do katalogu `ml-module` i wykonaj polecenie `docker build -t sims-ml-module .` (~10min)
    4. Wszystkie powyższe kroki można również wykonać poprzez lokalne uruchomienie aplikacji np. z IntelliJ, 
    jednak wtedy trzeba zmienić nazwy hostów 
    w application.yml, app.module.ts i main.py

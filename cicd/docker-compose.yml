@@ -9,32 +9,32 @@ services:
       - POSTGRES_DB=potentialsi
     ports:
       - "5432:5432"
-#  backend:
-#    image: backend:latest
-#    restart: on-failure
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - POSTGRES_HOST=db-backend
-#      - KAFKA_HOST=kafka:9092
-#      - ML_MODULE_HOST=http://ml-module:5000/ml
+  sims-backend:
+    image: sims-backend:latest
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      - POSTGRES_HOST=db-backend
+      - KAFKA_HOST=sims-kafka:9092
+      - ML_MODULE_HOST=http://sims-ml-module:5000/ml
   sims-frontend:
     image: sims-frontend:latest
     restart: on-failure
     ports:
       - "4200:4200"
-#  ml-module:
+#  sims-ml-module:
 #    image: ml-module:latest
 #    restart: on-failure
 #    ports:
 #      - "5000:5000"
-  zookeeper:
+  sims-zookeeper:
     image: 'bitnami/zookeeper:latest'
     ports:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-  kafka:
+  sims-kafka:
     image: 'bitnami/kafka:latest'
     ports:
       - '9092:9092'
@@ -42,8 +42,8 @@ services:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 # PLAINTEXT://localhost:9092
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=sims-zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_MAX_REQUEST_SIZE=10000000 # 10MB
     depends_on:
-      - zookeeper
+      - sims-zookeeper
