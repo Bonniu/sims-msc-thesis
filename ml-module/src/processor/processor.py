@@ -22,7 +22,7 @@ class Processor(threading.Thread):
             total_result = True
             abnormality_result = Abnormality(self.logs, self.period).run()
             anomaly_result = Anomaly(self.logs, self.period, self.kafka_template, self.db_conn).run()
-            intrusion_result = Intrusion(self.logs, self.period).run()
+            intrusion_results = Intrusion(self.logs, self.period).run()
 
             if (abnormality_result.status == LogStatus.ERROR or abnormality_result.status == LogStatus.FATAL):
                 total_result = False
@@ -34,11 +34,12 @@ class Processor(threading.Thread):
                 self.kafka_template.send_message(self.backend_topic,
                                                  "Anomaly module found errors, user blocked - " + anomaly_result.user,
                                                  LogStatus.ERROR)
-            if (intrusion_result is not None):
+            if (len(intrusion_results) > 0):
                 total_result = False
-                self.kafka_template.send_message(self.backend_topic,
-                                                 "Intrusion module found errors, user blocked - " + intrusion_result.user + "\n\nLOGS: " + intrusion_result.stack_trace,
-                                                 LogStatus.ERROR)
+                for intrusion_result in intrusion_results:
+                    self.kafka_template.send_message(self.backend_topic,
+                                                     "Intrusion module found errors, user blocked - " + intrusion_result.user + "\n\nLOGS: " + intrusion_result.stack_trace,
+                                                     LogStatus.ERROR)
             if total_result:
                 self.kafka_template.send_message(self.backend_topic, "Processing finished, no vulnerabilities found",
                                                  LogStatus.CORRECT)

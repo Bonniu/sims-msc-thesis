@@ -25,6 +25,8 @@ Jeśli powyższe działania nie przyniosą efektu, należy zmienić zmodyfikowa�
 127.0.0.1 sims-backend
 ```
 
+Jeśli dalej wystąpią problemy, należy uruchomić poszczególne komponenty w IDE, np. w IntelliJ
+
 Przygotowany system zawiera przykładowe działanie systemu, bez 'podpinania' go do prawdziwej aplikacji, którą mogłby monitorować.
 Zawiera logi w odpowiednich katalogach `backend/logs` oraz `backend/logsV`, które zawierają przygotowane logi z danej aplikacji.
 Aby sprawdzić, jak zachowałby się system SIMS, należy wykonać zapytanie GET na adres [sims-backend:8080/mlTest](sims-backend:8080/mmlTest)
