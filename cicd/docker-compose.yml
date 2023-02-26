@@ -23,11 +23,11 @@ services:
     restart: on-failure
     ports:
       - "4200:4200"
-#  sims-ml-module:
-#    image: sims-ml-module:latest
-#    restart: on-failure
-#    ports:
-#      - "5000:5000"
+  sims-ml-module:
+    image: sims-ml-module:latest
+    restart: on-failure
+    ports:
+      - "5000:5000"
   sims-zookeeper:
     image: 'bitnami/zookeeper:latest'
     ports:
