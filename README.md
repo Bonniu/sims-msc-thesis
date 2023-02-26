@@ -28,6 +28,6 @@ Jeśli powyższe działania nie przyniosą efektu, należy zmienić zmodyfikowa�
 Przygotowany system zawiera przykładowe działanie systemu, bez 'podpinania' go do prawdziwej aplikacji, którą mogłby monitorować.
 Zawiera logi w odpowiednich katalogach `backend/logs` oraz `backend/logsV`, które zawierają przygotowane logi z danej aplikacji.
 Aby sprawdzić, jak zachowałby się system SIMS, należy wykonać zapytanie GET na adres [sims-backend:8080/mlTest](sims-backend:8080/mmlTest)
-lub 
+lub [sims-backend:8080/mlInvalid](sims-backend:8080/mlInvalid), w zależności od celu (poprawne/niepoprawne działanie).
 
 

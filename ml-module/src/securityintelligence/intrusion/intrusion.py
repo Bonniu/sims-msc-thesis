@@ -7,11 +7,7 @@ class Intrusion(SIEMAlgorythm):
         SIEMAlgorythm.__init__(self, logs, period)
 
     def run(self):
-        logs = """
-        Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
-        
-        
-        
-        
-        """
-        return IntrusionResultDTO("kpiatek", logs)
+        users = set([l.username for l in self.logs if l.username is not None])
+        all_logs = self.logs.copy()
+
+        pass

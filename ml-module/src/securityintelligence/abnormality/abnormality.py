@@ -15,8 +15,6 @@ class Abnormality(SIEMAlgorythm):
         sorted_dicts_error = self.extract_sorted_dicts(log_list_error)
         sorted_dicts_fatal = self.extract_sorted_dicts(log_list_fatal)
 
-        # stop-list
-
         # more actions on error and fatal dictionaries - classification etc
         error_exceptions = self.filter_exceptions(sorted_dicts_error)
         fatal_exceptions = self.filter_exceptions(sorted_dicts_fatal)
