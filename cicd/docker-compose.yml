@@ -9,25 +9,25 @@ services:
       - POSTGRES_DB=potentialsi
     ports:
       - "5432:5432"
-  backend:
-    image: backend:latest
-    restart: on-failure
-    ports:
-      - "8080:8080"
-    environment:
-      - POSTGRES_HOST=db-backend
-      - KAFKA_HOST=kafka:9092
-      - ML_MODULE_HOST=http://ml-module:5000/ml
-  frontend:
-    image: frontend:latest
+#  backend:
+#    image: backend:latest
+#    restart: on-failure
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - POSTGRES_HOST=db-backend
+#      - KAFKA_HOST=kafka:9092
+#      - ML_MODULE_HOST=http://ml-module:5000/ml
+  sims-frontend:
+    image: sims-frontend:latest
     restart: on-failure
     ports:
       - "4200:4200"
-  ml-module:
-    image: ml-module:latest
-    restart: on-failure
-    ports:
-      - "5000:5000"
+#  ml-module:
+#    image: ml-module:latest
+#    restart: on-failure
+#    ports:
+#      - "5000:5000"
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     ports:
@@ -47,14 +47,3 @@ services:
       - KAFKA_CFG_MAX_REQUEST_SIZE=10000000 # 10MB
     depends_on:
       - zookeeper
-#  kafka-ui:
-#    image: provectuslabs/kafka-ui
-#    container_name: kafka-ui
-#    ports:
-#      - "8081:8080"
-#    restart: always
-#    environment:
-#      - KAFKA_CLUSTERS_0_NAME=local
-#      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:19092
-#  fluentd:
-#      image: fluentd
