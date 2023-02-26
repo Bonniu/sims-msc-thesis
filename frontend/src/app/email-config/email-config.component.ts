@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationRecipientService } from './service/notification-recipient.service';
 import { NotificationRecipient } from './model/notification-recipient';
+import { NotificationChannelService } from './service/notification-channel.service';
+import { NotificationChannel } from './model/notification-channel';
+import { notificationChannelSorter } from '../utils/notification-channel-sorter';
 
 @Component({
   selector: 'email-config',
@@ -9,20 +12,30 @@ import { NotificationRecipient } from './model/notification-recipient';
 })
 export class EmailConfigComponent implements OnInit {
   notificationRecipients: NotificationRecipient[] = [];
+  notificationChannels: NotificationChannel[] = [];
   newRecipientEmail: string = '';
 
   constructor(
-    private notificationRecipientService: NotificationRecipientService
+    private notificationRecipientService: NotificationRecipientService,
+    private notificationChannelService: NotificationChannelService
   ) {}
 
   ngOnInit() {
     this.notificationRecipientService
       .getAllNotificationRecipients()
       .subscribe((next) => (this.notificationRecipients = next));
+
+    this.notificationChannelService.getAllChannels().subscribe((next) => {
+      this.notificationChannels = notificationChannelSorter(next);
+    });
   }
 
   saveNotificationChannels() {
-    console.log('saveNotificationChannels');
+    this.notificationChannelService
+      .saveNotificationChannels(this.notificationChannels)
+      .subscribe((next) => {
+        window.location.reload();
+      });
   }
 
   saveNotificationRecipients(recipientEmail: string) {

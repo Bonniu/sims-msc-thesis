@@ -24,7 +24,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LogsBrowserComponent } from './logs-browser/logs-browser.component';
-import {LogService} from "./logs-browser/service/log.service";
+import { LogService } from './logs-browser/service/log.service';
+import { NotificationChannelService } from './email-config/service/notification-channel.service';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,7 @@ import {LogService} from "./logs-browser/service/log.service";
     NotificationsComponent,
     MessageModalComponent,
     EmailConfigComponent,
-    LogsBrowserComponent
+    LogsBrowserComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,7 +61,8 @@ import {LogService} from "./logs-browser/service/log.service";
     },
     NotificationService,
     NotificationRecipientService,
-    LogService
+    NotificationChannelService,
+    LogService,
   ],
   bootstrap: [AppComponent],
 })

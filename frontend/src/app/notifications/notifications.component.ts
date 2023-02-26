@@ -75,20 +75,14 @@ export class NotificationsComponent implements OnInit {
   deleteSelected(notifications: Notification[]) {
     let ids = notifications.filter((n) => n.selected).map((n) => n.id);
     for (const id of ids) {
-      console.log(id);
-      this.notificationService.deleteNotification(id).subscribe((next) => {
-        console.log('done');
-      });
+      this.notificationService.deleteNotification(id).subscribe((next) => {});
     }
     window.location.reload();
   }
 
   deleteAll() {
     for (const id of this.notifications.map((n) => n.id)) {
-      console.log(id);
-      this.notificationService.deleteNotification(id).subscribe((next) => {
-        console.log('done');
-      });
+      this.notificationService.deleteNotification(id).subscribe((next) => {});
     }
     window.location.reload();
   }

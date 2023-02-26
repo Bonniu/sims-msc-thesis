@@ -24,22 +24,16 @@ public class NotificationChannelController {
         return notificationChannelService.getNotificationChannels().stream().map(NotificationChannelEntityDtoMapper::toDto).toList();
     }
 
-    @GetMapping("{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public NotificationChannelDTO getNotificationChannel(@PathVariable Integer id) {
-        return NotificationChannelEntityDtoMapper.toDto(notificationChannelService.getNotificationChannel(id));
-    }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addNotificationChannel(@RequestBody NotificationChannelDTO dto) {
-        notificationChannelService.addNotificationChannel(NotificationChannelEntityDtoMapper.toEntity(dto));
-    }
-
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteNotificationChannel(@PathVariable Integer id) {
         notificationChannelService.deleteNotificationChannel(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void saveNotificationChannels(@RequestBody List<NotificationChannelDTO> list) {
+        notificationChannelService.saveNotificationChannels(list);
     }
 
 

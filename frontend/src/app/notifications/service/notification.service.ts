@@ -2,17 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Notification } from '../model/notification';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable()
 export class NotificationService {
-  private configUrl = 'http://localhost:8080/notifications';
+  private configUrl = environment.apiUrl + '/notifications';
 
   constructor(private http: HttpClient) {}
 
   getAllNotifications(): Observable<Notification[]> {
-    let observable = this.http.get<Notification[]>(this.configUrl);
-    console.log(observable)
-    return observable;
+    return this.http.get<Notification[]>(this.configUrl);
   }
 
   updateNotification(notification: Notification): Observable<void> {
@@ -23,9 +22,6 @@ export class NotificationService {
   }
 
   deleteNotification(notificationId: number): Observable<void> {
-    return this.http.delete<void>(
-      this.configUrl + '/' + notificationId,
-    );
+    return this.http.delete<void>(this.configUrl + '/' + notificationId);
   }
-
 }
