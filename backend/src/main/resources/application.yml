@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/potentialsi
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/sims
     username: postgres
     password: password
   kafka:

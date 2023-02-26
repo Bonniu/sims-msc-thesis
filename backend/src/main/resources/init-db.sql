@@ -1,4 +1,4 @@
--- create database potentialsi;
+-- create database sims;
 drop table if exists t_mails;
 create table t_mails
 (

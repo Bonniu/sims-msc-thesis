@@ -7,10 +7,10 @@ import org.springframework.kafka.annotation.EnableKafka;
 
 @EnableKafka
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-public class PotentialSiApplication {
+public class SIMSApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(PotentialSiApplication.class, args);
+        SpringApplication.run(SIMSApplication.class, args);
     }
 
 }
