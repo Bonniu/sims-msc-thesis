@@ -94,7 +94,7 @@ public class LogAnalyser {
                     return;
                 }
                 var logList = LogParser.parse(logsAsStrings, logParsingPeriod); // przetworzenie logów do analizy
-//                logService.saveLogs(logList);  // zapisanie logów do bazy danych FIXME uncomment
+                logService.saveLogs(logList);  // zapisanie logów do bazy danych
                 var mlStatus = LogStatus.valueOf(mlService.sendToMLApi(logList)); // wysłanie logów do ML, zwraca PROCESSING / ERROR
 
                 // sprawdzenie, czy są błędy/ostrzeżenia, jeśli nie ma to nie zostanie wysłane dodatkowe powiadomienie
